@@ -19,6 +19,46 @@ import (
 	// "strings"
 )
 
+// План
+/*
+1) Разбор сообщения (тут лучше всего сделать через template)
+
+template <class DataT> 
+struct Message
+{
+	String access_token, event_code, stream_type
+	DataT data;
+}
+
+struct DataIn
+{
+	...
+}
+
+struct DataOut
+{
+	...
+}
+
+Use:
+Message<DataIn> in;
+Message<DataOut> out;
+
+
+2) Сделать функцию которая будет составлять новое сообщение
+3) Добавляем контролирование входных данных
+4) Инит очередей
+5) Заполняем очередь пустышками
+6) Инит Postgres
+7) Пишем структуру БД
+8) Заполняем очередь из БД
+9) Делаем запись в БД(Лучше всего тут так же использовать очередь)
+10) Ресерчим Dockerfile
+11) Реализация
+11) Юнит-тесты
+11) Сдача
+*/
+
 // JSON
 // https://golang.org/pkg/encoding/json/#pkg-examples
 
