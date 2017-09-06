@@ -9,7 +9,62 @@ import (
 	//_ "github.com/mattn/go-sqlite3"
 
 	// _ "github.com/go-sql-driver/mysql"
+
+	// JSON, for object parsing
+	"encoding/json"
+
+	"fmt"
+	// "io"
+	// "log"
+	// "strings"
 )
+
+// JSON
+// https://golang.org/pkg/encoding/json/#pkg-examples
+
+func FromJSONToObj() {
+
+	// TODO: Добавить контролирование входных данных(смотри ТЗ)
+	const jsonStream = `
+	{
+		"access_token": "0d10566b-7e7f-4c17-b2ea-f0e42a4df3c0",
+		"event_code": "ispp",
+		"stream_type": "email",
+		"data": {
+		  "person_name": "Иван",
+		  "date": "2016-03-03",
+		  "person_email": "ivanivanov@gmail.com"
+		}
+	  }
+`
+
+	type MessageData struct {
+		Person_Name, Date, Person_email string
+	}
+
+	type Message struct {
+		Access_token, Event_code, Stream_type string
+		Data                                  MessageData
+	}
+
+	// Выводим DATA
+	res := Message{}
+	json.Unmarshal([]byte(jsonStream), &res)
+	fmt.Println(res)
+	fmt.Println(res.Data.Person_Name)
+
+	// dec := json.NewDecoder(strings.NewReader(jsonStream))
+	// for {
+	// 	var m Message
+
+	// 	if err := dec.Decode(&m); err == io.EOF {
+	// 		break
+	// 	} else if err != nil {
+	// 		log.Fatal(err)
+	// 	}
+	// 	fmt.Printf("Added Message: \n access_token: %s \n event_code: %s \n stream_type: %s \n END_OF_MESSAGE", m.Access_token, m.Event_code, m.Stream_type)
+	// }
+}
 
 //========================================
 // func CategoriesHandler(w http.ResponseWriter, r *http.Request) {
@@ -20,8 +75,6 @@ import (
 // 	Footer(w)
 // }
 
-
-
 func main() {
 
 	//{
@@ -31,7 +84,9 @@ func main() {
 	//	}
 	//}
 
-	println("test");
+	println("Run")
+	FromJSONToObj()
+	println("Finished")
 
 	// defer stmtCateg.Close() // Close the statement when we leave main() / the program terminates
 }
