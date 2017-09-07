@@ -17,6 +17,7 @@ import (
 	// "io"
 	"log"
 	// "strings"
+	"unicode/utf8"
 )
 
 // План
@@ -79,15 +80,42 @@ type MessageOut struct {
 	Data                                      MessageDataOut
 }
 
-func ValidateJSON(){
-	// TODO: Implement
+func ValidateJSONMessage(in MessageIn) bool {
 	log.Println("[Debug] ValidateJSON")
+
+	var EC_lenght int = utf8.RuneCountInString(in.Event_code)
+
+	if EC_lenght == 0 || EC_lenght > 255 {
+		log.Fatalln("Invalid JSON SIZE for event_code")
+		return false
+	}
+
+	if in.Stream_type != "email" && in.Stream_type != "sms" && in.Stream_type != "push" {
+		log.Fatalln("Invalid JSON type for Stream_type")
+		return false
+	}
+
+	// validate on nill. but must be nill, because not pointer
+	if (MessageDataIn{}) == in.Data {
+		log.Fatalln("Invalid JSON object for Data")
+		return false
+	}
+	return true
 }
 
 func MessageInToMessageToConverter(in MessageIn, to MessageOut, jsonStream string) {
 	json.Unmarshal([]byte(jsonStream), &in)
-	fmt.Println(in)
-	fmt.Println(in.Data.Person_Name)
+
+	// debug
+	{
+		fmt.Println(in)
+		fmt.Println(in.Data.Person_Name)
+	}
+
+	if ValidateJSONMessage(in) == false {
+		log.Println("Failed validation")
+		return;
+	}
 
 	if in.Stream_type == "email" {
 		log.Println("[Debug] stream_type is email")
