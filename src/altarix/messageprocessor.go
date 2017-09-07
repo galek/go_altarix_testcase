@@ -187,15 +187,6 @@ func FromJSONToObj() {
 	MessageInToMessageToConverter(in, out, jsonStream)
 }
 
-//========================================
-// func CategoriesHandler(w http.ResponseWriter, r *http.Request) {
-// 	MakeCookiesGreatAgain(w, r)
-// 	Header(w)
-// 	CategoriesShow(w)
-// 	println("CategoriesHandler: with DB ", r.FormValue("id"))
-// 	Footer(w)
-// }
-
 func main() {
 
 	//{
