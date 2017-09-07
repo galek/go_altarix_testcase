@@ -15,7 +15,7 @@ import (
 
 	"fmt"
 	// "io"
-	// "log"
+	"log"
 	// "strings"
 )
 
@@ -23,7 +23,7 @@ import (
 /*
 1) Разбор сообщения (тут лучше всего сделать через template)
 
-template <class DataT> 
+template <class DataT>
 struct Message
 {
 	String access_token, event_code, stream_type
@@ -62,6 +62,77 @@ Message<DataOut> out;
 // JSON
 // https://golang.org/pkg/encoding/json/#pkg-examples
 
+type MessageDataIn struct {
+	Person_Name, Date, Person_email, PersonSMS, PersonPush string
+}
+type MessageDataOut struct {
+	Person_Name, Date string
+}
+
+type MessageIn struct {
+	Access_token, Event_code, Stream_type string
+	Data                                  MessageDataIn
+}
+
+type MessageOut struct {
+	Access_token, Event_code, Stream_type, To string
+	Data                                      MessageDataOut
+}
+
+func ValidateJSON(){
+	// TODO: Implement
+	log.Println("[Debug] ValidateJSON")
+}
+
+func MessageInToMessageToConverter(in MessageIn, to MessageOut, jsonStream string) {
+	json.Unmarshal([]byte(jsonStream), &in)
+	fmt.Println(in)
+	fmt.Println(in.Data.Person_Name)
+
+	if in.Stream_type == "email" {
+		log.Println("[Debug] stream_type is email")
+		fmt.Println(in.Data.Person_email)
+	} else if in.Stream_type == "sms" {
+		log.Println("[Debug] stream_type is sms")
+		fmt.Println(in.Data.PersonSMS)
+	} else if in.Stream_type == "push" {
+		log.Println("[Debug] stream_type is push")
+		fmt.Println(in.Data.PersonPush)
+	}
+
+	to.Access_token = in.Access_token
+	to.Event_code = in.Event_code
+	to.Stream_type = in.Stream_type
+
+	// TO Value
+	if to.Stream_type == "email" {
+		log.Println("[Debug] MessageOut stream_type is email")
+		to.To = in.Data.Person_email
+	} else if to.Stream_type == "sms" {
+		log.Println("[Debug] MessageOut stream_type is sms")
+		to.To = in.Data.PersonSMS
+	} else if to.Stream_type == "push" {
+		log.Println("[Debug] MessageOut stream_type is push")
+		to.To = in.Data.PersonPush
+	}
+
+	// Data
+	to.Data.Person_Name = in.Data.Person_Name
+	to.Data.Date = in.Data.Date
+
+	// dec := json.NewDecoder(strings.NewReader(jsonStream))
+	// for {
+	// 	var m Message
+
+	// 	if err := dec.Decode(&m); err == io.EOF {
+	// 		break
+	// 	} else if err != nil {
+	// 		log.Fatal(err)
+	// 	}
+	// 	fmt.Printf("Added Message: \n access_token: %s \n event_code: %s \n stream_type: %s \n END_OF_MESSAGE", m.Access_token, m.Event_code, m.Stream_type)
+	// }
+}
+
 func FromJSONToObj() {
 
 	// TODO: Добавить контролирование входных данных(смотри ТЗ)
@@ -78,32 +149,11 @@ func FromJSONToObj() {
 	  }
 `
 
-	type MessageData struct {
-		Person_Name, Date, Person_email string
-	}
-
-	type Message struct {
-		Access_token, Event_code, Stream_type string
-		Data                                  MessageData
-	}
-
 	// Выводим DATA
-	res := Message{}
-	json.Unmarshal([]byte(jsonStream), &res)
-	fmt.Println(res)
-	fmt.Println(res.Data.Person_Name)
+	in := MessageIn{}
+	out := MessageOut{}
 
-	// dec := json.NewDecoder(strings.NewReader(jsonStream))
-	// for {
-	// 	var m Message
-
-	// 	if err := dec.Decode(&m); err == io.EOF {
-	// 		break
-	// 	} else if err != nil {
-	// 		log.Fatal(err)
-	// 	}
-	// 	fmt.Printf("Added Message: \n access_token: %s \n event_code: %s \n stream_type: %s \n END_OF_MESSAGE", m.Access_token, m.Event_code, m.Stream_type)
-	// }
+	MessageInToMessageToConverter(in, out, jsonStream)
 }
 
 //========================================
