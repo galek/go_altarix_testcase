@@ -11,10 +11,14 @@ import (
 	// _ "github.com/go-sql-driver/mysql"
 
 	// JSON, for object parsing
-	"encoding/json"
+	//"encoding/json"
+	// see 
+	/*https://github.com/pquerna/ffjson  - it faster
+	*/
+	"github.com/pquerna/ffjson/ffjson"
 
 	"fmt"
-	// "io"
+	//"io"
 	"log"
 	// "strings"
 	"unicode/utf8"
@@ -66,6 +70,14 @@ Do:
 // JSON
 // https://golang.org/pkg/encoding/json/#pkg-examples
 
+var err error
+
+func printError() {
+	if err != nil {
+		log.Fatalln(err.Error)
+	}
+}
+
 type MessageDataIn struct {
 	Person_Name, Date, Person_email, PersonSMS, PersonPush string
 }
@@ -79,11 +91,14 @@ type MessageIn struct {
 }
 
 type MessageOut struct {
-	Access_token, Event_code, Stream_type, To string
-	Data                                      MessageDataOut
+	Access_token string `json:"access_token"`
+	Event_code   string `json:"event_code"`
+	Stream_type  string `json:"stream_type"`
+	To           string `json:"to"`
+	Data         MessageDataOut
 }
 
-func ValidateJSONMessage(in MessageIn) bool {
+func ValidateJSONMessage(in* MessageIn) bool {
 	log.Println("[Debug] ValidateJSON")
 
 	var EC_lenght int = utf8.RuneCountInString(in.Event_code)
@@ -106,29 +121,39 @@ func ValidateJSONMessage(in MessageIn) bool {
 	return true
 }
 
-func MessageInToMessageToConverter(in MessageIn, to MessageOut, jsonStream string) {
-	json.Unmarshal([]byte(jsonStream), &in)
+// Generate JSON func from MessageOut, used for debug
+// see https://ashirobokov.wordpress.com/2016/09/22/json-golang-cheat-sheet/
+func GenerateJSON(in MessageOut) {
+	// Write the buffer
+	boolVar, _ := ffjson.Marshal(&in)
+	fmt.Println(string(boolVar))
+
+	// TODO: Add write to bd
+}
+
+func MessageInToMessageToConverter(in* MessageIn, to* MessageOut, jsonStream string) {
+	ffjson.Unmarshal([]byte(jsonStream), &in)
 
 	// debug
-	{
-		fmt.Println(in)
-		fmt.Println(in.Data.Person_Name)
-	}
+	// {
+	// 	fmt.Println(in)
+	// 	fmt.Println(in.Data.Person_Name)
+	// }
 
 	if ValidateJSONMessage(in) == false {
 		log.Println("Failed validation")
-		return;
+		return
 	}
 
 	if in.Stream_type == "email" {
 		log.Println("[Debug] stream_type is email")
-		fmt.Println(in.Data.Person_email)
+		// fmt.Println(in.Data.Person_email)
 	} else if in.Stream_type == "sms" {
 		log.Println("[Debug] stream_type is sms")
-		fmt.Println(in.Data.PersonSMS)
+		// fmt.Println(in.Data.PersonSMS)
 	} else if in.Stream_type == "push" {
 		log.Println("[Debug] stream_type is push")
-		fmt.Println(in.Data.PersonPush)
+		// fmt.Println(in.Data.PersonPush)
 	}
 
 	to.Access_token = in.Access_token
@@ -184,7 +209,9 @@ func FromJSONToObj() {
 	in := MessageIn{}
 	out := MessageOut{}
 
-	MessageInToMessageToConverter(in, out, jsonStream)
+	MessageInToMessageToConverter(&in, &out, jsonStream)
+
+	GenerateJSON(out)
 }
 
 func main() {
@@ -207,10 +234,3 @@ func main() {
 // var stmtCateg *sql.Stmt //List of categories
 // var stntAdds *sql.Stmt  // list of all adds by categoryID
 //var stntMessageBody *sql.Stmt // list of all adds by categoryID
-var err error
-
-func printError() {
-	if err != nil {
-		println("Error: with DB ", err.Error())
-	}
-}
