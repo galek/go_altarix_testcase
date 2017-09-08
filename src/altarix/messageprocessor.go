@@ -54,6 +54,9 @@ Message<DataOut> out;
 3) Добавляем контролирование входных данных __DONE__
 4) Генерация JSON'a - debug only __DONE__
 
+// TODO On today:
+1) Research on message broker and implement support of postgres+research sql structure 
+
 Do:
 -) Добавить валидацию в сообщении. Поле access_token по паттерну. Пока не понятно, может ли оно отличаться. Уточнить
 4) Инит очередей
