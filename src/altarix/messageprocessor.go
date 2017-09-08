@@ -12,9 +12,9 @@ import (
 
 	// JSON, for object parsing
 	//"encoding/json"
-	// see 
+	// see
 	/*https://github.com/pquerna/ffjson  - it faster
-	*/
+	 */
 	"github.com/pquerna/ffjson/ffjson"
 
 	"fmt"
@@ -79,15 +79,22 @@ func printError() {
 }
 
 type MessageDataIn struct {
-	Person_Name, Date, Person_email, PersonSMS, PersonPush string
+	Person_Name  string `json:"person_Name"`
+	Date         string `json:"date"`
+	Person_email string `json:"person_email"`
+	PersonSMS    string `json:"person_sms"`
+	PersonPush   string `json:"person_push"`
 }
 type MessageDataOut struct {
-	Person_Name, Date string
+	Person_Name string `json:"person_Name"`
+	Date        string `json:"date"`
 }
 
 type MessageIn struct {
-	Access_token, Event_code, Stream_type string
-	Data                                  MessageDataIn
+	Access_token string `json:"access_token"`
+	Event_code   string `json:"event_code"`
+	Stream_type  string `json:"stream_type"`
+	Data         MessageDataIn
 }
 
 type MessageOut struct {
@@ -98,7 +105,7 @@ type MessageOut struct {
 	Data         MessageDataOut
 }
 
-func ValidateJSONMessage(in* MessageIn) bool {
+func ValidateJSONMessage(in *MessageIn) bool {
 	log.Println("[Debug] ValidateJSON")
 
 	var EC_lenght int = utf8.RuneCountInString(in.Event_code)
@@ -131,7 +138,7 @@ func GenerateJSON(in MessageOut) {
 	// TODO: Add write to bd
 }
 
-func MessageInToMessageToConverter(in* MessageIn, to* MessageOut, jsonStream string) {
+func MessageInToMessageToConverter(in *MessageIn, to *MessageOut, jsonStream string) {
 	ffjson.Unmarshal([]byte(jsonStream), &in)
 
 	// debug
