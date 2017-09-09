@@ -74,11 +74,43 @@ INSERT INTO public.UUID_EMAIL (email) VALUES
 ('test@test5.ru')
 ;
 
+/*
+Таблица uud_email
+Формат: 
+Код-номер телефона
+*/
+CREATE TABLE public.UUID_SMS(  
+   uid serial NOT NULL PRIMARY KEY,
+   tel_number TEXT
+);
+
+INSERT INTO public.UUID_SMS (tel_number) VALUES  
+('000000001'),
+('000000002'),
+('000000003'),
+('000000004'),
+('000000005')
+;
 
 /*
-Таблица uud_sms
-uud_push
+Таблица uud_push
+Формат: 
+Код-заголовок уведомления, подробный текст, иконка
 */
+CREATE TABLE public.UUID_PUSH(  
+   uid serial NOT NULL PRIMARY KEY,
+   caption TEXT,
+   body TEXT,
+   icon int
+);
+
+INSERT INTO public.UUID_PUSH (caption, body, icon) VALUES  
+('cap1','body1', 0),
+('cap2','body2', 0),
+('cap3','body3', 0),
+('cap4','body4', 0)
+;
+
 
 /*таблица access_token токенов*/
 
