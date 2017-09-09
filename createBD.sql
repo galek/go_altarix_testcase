@@ -112,7 +112,22 @@ INSERT INTO public.UUID_PUSH (caption, body, icon) VALUES
 ;
 
 
-/*таблица access_token токенов*/
+/*
+таблица access_token токенов
+SELECT md5(random()::text || clock_timestamp()::text)::uuid
+на выходе дает 
+38b2cfb8-eb40-fc3d-9a81-49304b21cdb6
+
+на моей psql уже готовые функции типа uuid_generate_v4, не работают :(
+*/
+CREATE TABLE public.ACCESS_TOKENS(  
+   uid serial NOT NULL PRIMARY KEY,
+   TOKEN TEXT
+);
+
+INSERT INTO public.ACCESS_TOKENS (TOKEN) VALUES  
+('38b2cfb8-eb40-fc3d-9a81-49304b21cdb6')
+;
 
 /*
 Результирующая таблица
@@ -124,9 +139,12 @@ stream_type int,
 /*Data block*/
 person_name int,
 person_email int,
+person_phone int,
+FOREIGN KEY (access_token) REFERENCES public.ACCESS_TOKENS(uid),
 FOREIGN KEY (event_token) REFERENCES public.EVENT_CODES(uid),
 FOREIGN KEY (stream_type) REFERENCES public.STREAM_TYPES(uid),
 FOREIGN KEY (person_email) REFERENCES public.UUID_EMAIL(uid),
+FOREIGN KEY (person_phone) REFERENCES public.UUID_SMS(uid),
 FOREIGN KEY (person_name) REFERENCES public.ID_NAMES(uid),
 /*обычная дата DATE*/
 person_date date
