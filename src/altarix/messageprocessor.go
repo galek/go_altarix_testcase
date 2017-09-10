@@ -53,16 +53,16 @@ Message<DataOut> out;
 2) Сделать функцию которая будет составлять новое сообщение  __DONE__
 3) Добавляем контролирование входных данных __DONE__
 4) Генерация JSON'a - debug only __DONE__
+5) Пишем структуру БД
+
 
 // TODO On today:
 1) Research on message broker and implement support of postgres+research sql structure 
 
 Do:
--) Добавить валидацию в сообщении. Поле access_token по паттерну. Пока не понятно, может ли оно отличаться. Уточнить
 4) Инит очередей
 5) Заполняем очередь пустышками
 6) Инит Postgres
-7) Пишем структуру БД
 8) Заполняем очередь из БД
 9) Делаем запись в БД(Лучше всего тут так же использовать очередь)
 10) Ресерчим Dockerfile
@@ -234,9 +234,15 @@ func main() {
 	//	}
 	//}
 
-	println("Run")
-	FromJSONToObj()
-	println("Finished")
+	// stable workS
+// {	
+	// println("Run")
+	// FromJSONToObj()
+	// println("Finished")
+// }
+
+connectionToDB();
+// CloseConnectionToDB();
 
 	// defer stmtCateg.Close() // Close the statement when we leave main() / the program terminates
 }
