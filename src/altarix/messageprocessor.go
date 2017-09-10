@@ -57,7 +57,7 @@ Message<DataOut> out;
 
 
 // TODO On today:
-1) Research on message broker and implement support of postgres+research sql structure 
+1) Research on message broker and implement support of postgres+research sql structure
 
 Do:
 4) Инит очередей
@@ -73,14 +73,6 @@ Do:
 
 // JSON
 // https://golang.org/pkg/encoding/json/#pkg-examples
-
-var err error
-
-func printError() {
-	if err != nil {
-		log.Fatalln(err.Error)
-	}
-}
 
 type MessageDataIn struct {
 	Person_Name  string `json:"person_Name"`
@@ -235,14 +227,14 @@ func main() {
 	//}
 
 	// stable workS
-// {	
+	// {
 	// println("Run")
 	// FromJSONToObj()
 	// println("Finished")
-// }
+	// }
 
-connectionToDB();
-// CloseConnectionToDB();
+	connectionToDB()
+	// CloseConnectionToDB();
 
 	// defer stmtCateg.Close() // Close the statement when we leave main() / the program terminates
 }
