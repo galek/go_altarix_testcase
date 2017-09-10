@@ -49,68 +49,72 @@ func connectionToDB() {
 	CloseConnectionToDB()
 }
 
-/*Функция получает уникальный номер из access_tokens по токену*/
-func GetUIDFromAccessTokensByToken(_token string, pdb **sql.DB) int {
-	db := *pdb;
-	/* Note: передача параметра через
+func UTIL_GetUIDByString(_tokenName string, UID_NAME string, _tokenValue string, _dbName string, pdb **sql.DB) int {
+	db := *pdb
+	var req string = "SELECT " + UID_NAME + " FROM " + _dbName + " WHERE " + _tokenName + " = $1"
+	log.Println("req: ", req)
 
-	var req string = "SELECT uid FROM access_tokens WHERE token = ? ";
+	var stntMessageBody *sql.Stmt
 	stntMessageBody, err = db.Prepare(req)
-	stntMessageBody.Query(_token)
 
-	НЕ РАБОТАЕТ. ругается на неправильный синтаксис
-	*/
-	var req string = "SELECT uid FROM access_tokens WHERE token = $1";
-	var stntMessageBody *sql.Stmt;
-	stntMessageBody, err = db.Prepare(req);
-
-	printError(file_line());
+	printError(file_line())
 
 	//Читаем все значения
-	var rows *sql.Rows;
-	rows, err = stntMessageBody.Query(_token);
+	var rows *sql.Rows
+	rows, err = stntMessageBody.Query(_tokenValue)
 
-	var UID int;
-	UID = INVALID_VALUE;
+	var UID int
+	UID = INVALID_VALUE
 
 	for rows.Next() {
-		rows.Scan(&UID);
-		log.Println("[DEBUG ONLY] Requsted with token: ", _token, " result uid ", UID);
+		rows.Scan(&UID)
+		log.Println("[DEBUG ONLY] Requsted with token: ", _tokenValue, " result uid ", UID)
 	}
-	printError(file_line());
+	printError(file_line())
 
-	defer rows.Close();
-	defer stntMessageBody.Close();
+	defer rows.Close()
+	defer stntMessageBody.Close()
 
 	return UID
 }
 
-/*Функция получает access_tokens по номеру*/
-func GetTokenFromAccessTokensByUID(uid int, pdb **sql.DB) string {
-	db := *pdb;
-	var req string = "SELECT token FROM access_tokens WHERE uid = $1";
-	var stntMessageBody *sql.Stmt;
-	stntMessageBody, err = db.Prepare(req);
+func UTIL_GetStringByUID(_tokenName string, UID_NAME string, UID_VALUE int, _dbName string, pdb **sql.DB) string {
+	db := *pdb
+	var req string = "SELECT " + _tokenName + " FROM " + _dbName + " WHERE " + UID_NAME + " = $1"
+	log.Println("req: ", req)
 
-	printError(file_line());
+	var stntMessageBody *sql.Stmt
+	stntMessageBody, err = db.Prepare(req)
+
+	printError(file_line())
 
 	//Читаем все значения
-	var rows *sql.Rows;
-	rows, err = stntMessageBody.Query(uid);
+	var rows *sql.Rows
+	rows, err = stntMessageBody.Query(UID_VALUE)
 
-	var TOKEN string
-	TOKEN = INVALID_VALUE_STRING;
+	var UID string
+	UID = INVALID_VALUE_STRING
 
 	for rows.Next() {
-		rows.Scan(&TOKEN);
-		log.Println("[DEBUG ONLY] Requsted with uid: ", uid, " result token ", TOKEN);
+		rows.Scan(&UID)
+		log.Println("[DEBUG ONLY] Requsted with token: ", _tokenName, " result uid ", UID)
 	}
-	printError(file_line());
+	printError(file_line())
 
-	defer rows.Close();
-	defer stntMessageBody.Close();
+	defer rows.Close()
+	defer stntMessageBody.Close()
 
-	return TOKEN;
+	return UID
+}
+
+/*Функция получает уникальный номер из access_tokens по токену*/
+func GetUIDFromAccessTokensByToken(_token string, pdb **sql.DB) int {
+	return UTIL_GetUIDByString("token", "uid", _token, "access_tokens", pdb)
+}
+
+/*Функция получает access_tokens по номеру*/
+func GetTokenFromAccessTokensByUID(uid int, pdb **sql.DB) string {
+	return UTIL_GetStringByUID("token", "uid", 1, "access_tokens", pdb)
 }
 
 /*-----------------------------------------------------------------------------*/
