@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 
 	_ "github.com/lib/pq"
@@ -14,6 +13,16 @@ https://github.com/lib/pq
 https://github.com/lib/pq/blob/master/listen_example/doc.go
 */
 
+/*
+See:http://go-database-sql.org/prepared.html
+MySQL               PostgreSQL            Oracle
+=====               ==========            ======
+WHERE col = ?       WHERE col = $1        WHERE col = :col
+VALUES(?, ?, ?)     VALUES($1, $2, $3)    VALUES(:val1, :val2, :val3)
+*/
+
+const INVALID_VALUE int = -1
+const INVALID_VALUE_STRING string = ""
 const DB_CONNECT_STRING = "host=localhost port=5432 user=postgres password=postgres dbname=altarix sslmode=disable"
 
 var DB *sql.DB
@@ -35,39 +44,73 @@ func CloseConnectionToDB() {
 func connectionToDB() {
 	OpenConnectionToDB()
 	// init_database(&db)
-	GetUIDFromAccessTokensByToken("'38b2cfb8-eb40-fc3d-9a81-49304b21cdb6'", &DB)
-	//CloseConnectionToDB()
+	GetUIDFromAccessTokensByToken("38b2cfb8-eb40-fc3d-9a81-49304b21cdb6", &DB)
+	GetTokenFromAccessTokensByUID(1, &DB)
+	CloseConnectionToDB()
 }
 
-func GetUIDFromAccessTokensByToken(_token string, pdb **sql.DB) {
-	db := *pdb
-	var req string = "SELECT uid FROM access_tokens WHERE token = ?"
-	var stntMessageBody *sql.Stmt
+/*Функция получает уникальный номер из access_tokens по токену*/
+func GetUIDFromAccessTokensByToken(_token string, pdb **sql.DB) int {
+	db := *pdb;
+	/* Note: передача параметра через
+
+	var req string = "SELECT uid FROM access_tokens WHERE token = ? ";
 	stntMessageBody, err = db.Prepare(req)
-
-	printError(file_line())
-
-	println("token: %s", _token)
-
-	fmt.Println("finished")
-
 	stntMessageBody.Query(_token)
 
+	НЕ РАБОТАЕТ. ругается на неправильный синтаксис
+	*/
+	var req string = "SELECT uid FROM access_tokens WHERE token = $1";
+	var stntMessageBody *sql.Stmt;
+	stntMessageBody, err = db.Prepare(req);
+
+	printError(file_line());
+
 	//Читаем все значения
-	// var rows *sql.Rows
-	// rows, err = stntMessageBody.Query(_token)
+	var rows *sql.Rows;
+	rows, err = stntMessageBody.Query(_token);
 
-	// var UID int
+	var UID int;
+	UID = INVALID_VALUE;
 
-	// for rows.Next() {
-	// 	rows.Scan(&UID)
-	// 	log.Println("[DEBUG ONLY] %s %i", _token, UID)
-	// }
-	// printError(file_line())
+	for rows.Next() {
+		rows.Scan(&UID);
+		log.Println("[DEBUG ONLY] Requsted with token: ", _token, " result uid ", UID);
+	}
+	printError(file_line());
 
-	// defer rows.Close()
-	// defer stntMessageBody.Close()
-	// return 0;
+	defer rows.Close();
+	defer stntMessageBody.Close();
+
+	return UID
+}
+
+/*Функция получает access_tokens по номеру*/
+func GetTokenFromAccessTokensByUID(uid int, pdb **sql.DB) string {
+	db := *pdb;
+	var req string = "SELECT token FROM access_tokens WHERE uid = $1";
+	var stntMessageBody *sql.Stmt;
+	stntMessageBody, err = db.Prepare(req);
+
+	printError(file_line());
+
+	//Читаем все значения
+	var rows *sql.Rows;
+	rows, err = stntMessageBody.Query(uid);
+
+	var TOKEN string
+	TOKEN = INVALID_VALUE_STRING;
+
+	for rows.Next() {
+		rows.Scan(&TOKEN);
+		log.Println("[DEBUG ONLY] Requsted with uid: ", uid, " result token ", TOKEN);
+	}
+	printError(file_line());
+
+	defer rows.Close();
+	defer stntMessageBody.Close();
+
+	return TOKEN;
 }
 
 /*-----------------------------------------------------------------------------*/
