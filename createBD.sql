@@ -133,11 +133,11 @@ INSERT INTO public.ACCESS_TOKENS (TOKEN) VALUES
 Результирующая таблица
 */
 CREATE TABLE public.ResultTable(  
-access_token int,
-event_token int, 
-stream_type int,
+access_token int NOT NULL,
+event_token int NOT NULL, 
+stream_type int NOT NULL,
 /*Data block*/
-person_name int,
+person_name int NOT NULL,
 person_email int,
 person_phone int,
 FOREIGN KEY (access_token) REFERENCES public.ACCESS_TOKENS(uid),
@@ -145,6 +145,23 @@ FOREIGN KEY (event_token) REFERENCES public.EVENT_CODES(uid),
 FOREIGN KEY (stream_type) REFERENCES public.STREAM_TYPES(uid),
 FOREIGN KEY (person_email) REFERENCES public.UUID_EMAIL(uid),
 FOREIGN KEY (person_phone) REFERENCES public.UUID_SMS(uid),
+FOREIGN KEY (person_name) REFERENCES public.ID_NAMES(uid),
+/*обычная дата DATE*/
+person_date date
+);
+/*
+Результирующая таблица
+*/
+CREATE TABLE public.ToTable(  
+access_token int NOT NULL,
+event_token int NOT NULL, 
+stream_type int NOT NULL,
+/*Data block*/
+person_name int NOT NULL,
+person_to TEXT,
+FOREIGN KEY (access_token) REFERENCES public.ACCESS_TOKENS(uid),
+FOREIGN KEY (event_token) REFERENCES public.EVENT_CODES(uid),
+FOREIGN KEY (stream_type) REFERENCES public.STREAM_TYPES(uid),
 FOREIGN KEY (person_name) REFERENCES public.ID_NAMES(uid),
 /*обычная дата DATE*/
 person_date date
