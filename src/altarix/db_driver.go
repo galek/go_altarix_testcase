@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 
 	_ "github.com/lib/pq"
@@ -19,6 +20,14 @@ MySQL               PostgreSQL            Oracle
 =====               ==========            ======
 WHERE col = ?       WHERE col = $1        WHERE col = :col
 VALUES(?, ?, ?)     VALUES($1, $2, $3)    VALUES(:val1, :val2, :val3)
+*/
+
+// TODO:
+/*
+Добавить поле push в result table и так же заполнять его.
+Заполняем очередь.
+Раскидать более удобно код.
+Подчистить, добавить валидации
 */
 
 const INVALID_VALUE int = -1
@@ -46,6 +55,9 @@ func connectionToDB() {
 	// init_database(&db)
 	GetUIDFromAccessTokensByToken("38b2cfb8-eb40-fc3d-9a81-49304b21cdb6", &DB)
 	GetTokenFromAccessTokensByUID(1, &DB)
+
+	GetObjectFromResultTable(&DB)
+
 	CloseConnectionToDB()
 }
 
@@ -115,6 +127,79 @@ func GetUIDFromAccessTokensByToken(_token string, pdb **sql.DB) int {
 /*Функция получает access_tokens по номеру*/
 func GetTokenFromAccessTokensByUID(uid int, pdb **sql.DB) string {
 	return UTIL_GetStringByUID("token", "uid", 1, "access_tokens", pdb)
+}
+
+/*Функция получает Event_code по номеру*/
+func GetTokenFromEventCodesByUID(uid int, pdb **sql.DB) string {
+	return UTIL_GetStringByUID("descr", "uid", 1, "Event_codes", pdb)
+}
+
+/*Функция получает Event_code по номеру*/
+func GetTokenFromStreamTypesByUID(uid int, pdb **sql.DB) string {
+	return UTIL_GetStringByUID("descr", "uid", 1, "stream_types", pdb)
+}
+
+func GetTokenFromPersonNameByUID(uid int, pdb **sql.DB) string {
+	return UTIL_GetStringByUID("name", "uid", 1, "id_names", pdb)
+}
+func GetTokenFromPersonEmailByUID(uid int, pdb **sql.DB) string {
+	return UTIL_GetStringByUID("email", "uid", 1, "uuid_email", pdb)
+}
+func GetTokenFromPersonSMSByUID(uid int, pdb **sql.DB) string {
+	return UTIL_GetStringByUID("tel_number", "uid", 1, "uuid_sms", pdb)
+}
+
+func GetObjectFromResultTable(pdb **sql.DB) {
+	db := *pdb
+	var req string = "SELECT " + "*" + " FROM " + " resulttable"
+	log.Println("req: ", req)
+
+	var stntMessageBody *sql.Stmt
+	stntMessageBody, err = db.Prepare(req)
+
+	printError(file_line())
+
+	//Читаем все значения
+	var rows *sql.Rows
+	rows, err = stntMessageBody.Query()
+
+	bks := make([]*MessageIn, 0)
+
+	var AT_UID int = INVALID_VALUE
+	var EC_UID int = INVALID_VALUE
+	var ST_UID int = INVALID_VALUE
+	var PN_UID int = INVALID_VALUE
+	var PNE_UID int = INVALID_VALUE
+	var PN_PHONE_UID int = INVALID_VALUE
+
+	for rows.Next() {
+		bk := new(MessageIn)
+		err := rows.Scan(&AT_UID, &EC_UID, &ST_UID, &PN_UID, &PNE_UID, &PN_PHONE_UID, &bk.Data.Date)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		// Вот тут на самом деле можно все упростить и поместить в 1 табличку. Но я хотел достичь нормализации, поэтому все так усложнено.
+		/*Добавим еще одну таблицу в последствии*/
+
+		/*Convertation part*/
+		bk.Access_token = GetTokenFromAccessTokensByUID(AT_UID, pdb)
+		bk.Event_code = GetTokenFromEventCodesByUID(EC_UID, pdb)
+		bk.Stream_type = GetTokenFromStreamTypesByUID(ST_UID, pdb)
+		bk.Data.Person_Name = GetTokenFromPersonNameByUID(PN_UID, pdb)
+		bk.Data.Person_email = GetTokenFromPersonEmailByUID(PN_UID, pdb)
+		bk.Data.PersonSMS = GetTokenFromPersonSMSByUID(PN_PHONE_UID, pdb)
+
+		bks = append(bks, bk)
+	}
+	if err = rows.Err(); err != nil {
+		log.Fatal(err)
+	}
+
+	for _, bk := range bks {
+		fmt.Printf("%s, %s, %s, %s, %s, %s, %s \n", bk.Access_token, bk.Event_code, bk.Stream_type, bk.Data.Person_Name, bk.Data.Person_email, bk.Data.PersonSMS, bk.Data.Date)
+	}
+
 }
 
 /*-----------------------------------------------------------------------------*/
