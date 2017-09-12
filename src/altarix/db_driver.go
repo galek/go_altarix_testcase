@@ -64,7 +64,9 @@ func connectionToDB() {
 func UTIL_GetUIDByString(_tokenName string, UID_NAME string, _tokenValue string, _dbName string, pdb **sql.DB) int {
 	db := *pdb
 	var req string = "SELECT " + UID_NAME + " FROM " + _dbName + " WHERE " + _tokenName + " = $1"
-	log.Println("req: ", req)
+	if ISDebug {
+		log.Println("req: ", req)
+	}
 
 	var stntMessageBody *sql.Stmt
 	stntMessageBody, err = db.Prepare(req)
@@ -80,7 +82,9 @@ func UTIL_GetUIDByString(_tokenName string, UID_NAME string, _tokenValue string,
 
 	for rows.Next() {
 		rows.Scan(&UID)
-		log.Println("[DEBUG ONLY] Requsted with token: ", _tokenValue, " result uid ", UID)
+		if ISDebug {
+			log.Println("[DEBUG ONLY] Requsted with token: ", _tokenValue, " result uid ", UID)
+		}
 	}
 	printError(file_line())
 
@@ -93,7 +97,9 @@ func UTIL_GetUIDByString(_tokenName string, UID_NAME string, _tokenValue string,
 func UTIL_GetStringByUID(_tokenName string, UID_NAME string, UID_VALUE int, _dbName string, pdb **sql.DB) string {
 	db := *pdb
 	var req string = "SELECT " + _tokenName + " FROM " + _dbName + " WHERE " + UID_NAME + " = $1"
-	log.Println("req: ", req)
+	if ISDebug {
+		log.Println("req: ", req)
+	}
 
 	var stntMessageBody *sql.Stmt
 	stntMessageBody, err = db.Prepare(req)
@@ -109,7 +115,9 @@ func UTIL_GetStringByUID(_tokenName string, UID_NAME string, UID_VALUE int, _dbN
 
 	for rows.Next() {
 		rows.Scan(&UID)
-		log.Println("[DEBUG ONLY] Requsted with token: ", _tokenName, " result uid ", UID)
+		if ISDebug {
+			log.Println("[DEBUG ONLY] Requsted with token: ", _tokenName, " result uid ", UID)
+		}
 	}
 	printError(file_line())
 
@@ -157,7 +165,9 @@ func GetTokenFromPersonSMSByUID(uid int, pdb **sql.DB) string {
 func GetObjectFromResultTable(pdb **sql.DB) {
 	db := *pdb
 	var req string = "SELECT " + "*" + " FROM " + " resulttable"
-	log.Println("req: ", req)
+	if ISDebug {
+		log.Println("req: ", req)
+	}
 
 	var stntMessageBody *sql.Stmt
 	stntMessageBody, err = db.Prepare(req)
