@@ -49,17 +49,23 @@ func CloseConnectionToDB() {
 	defer DB.Close()
 }
 
-func connectionToDB() {
-	OpenConnectionToDB()
-	// init_database(&db)
-	GetUIDFromAccessTokensByToken("38b2cfb8-eb40-fc3d-9a81-49304b21cdb6", &DB)
-	// GetTokenFromAccessTokensByUID(1, &DB)
-
+/*
+Создаем очередь из БД
+*/
+func CreateQueueFromDB() {
+	OpenConnectionToDB()	
 	GetObjectFromResultTable(&DB)
-
 	CloseConnectionToDB()
 }
 
+/*
+Получаем очередь и разбираем ее
+*/
+func GetQueue(){
+	RM_Receive("obj")
+}
+
+/**/
 func UTIL_GetUIDByString(_tokenName string, UID_NAME string, _tokenValue string, _dbName string, pdb **sql.DB) int {
 	db := *pdb
 	var req string = "SELECT " + UID_NAME + " FROM " + _dbName + " WHERE " + _tokenName + " = $1"

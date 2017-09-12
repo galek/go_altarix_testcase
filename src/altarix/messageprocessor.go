@@ -50,20 +50,19 @@ Use:
 Message<DataIn> in;
 Message<DataOut> out;
 
+1) Research on message broker and implement support of postgres+research sql structure __DONE__
 2) Сделать функцию которая будет составлять новое сообщение  __DONE__
 3) Добавляем контролирование входных данных __DONE__
 4) Генерация JSON'a - debug only __DONE__
-5) Пишем структуру БД
-
+5) Пишем структуру БД __DONE__
+6) Инит очередей __DONE__
+7) Заполняем очередь пустышками __DONE__
+8) Инит Postgres __DONE__
+9) Заполняем очередь из БД __DONE__
 
 // TODO On today:
-1) Research on message broker and implement support of postgres+research sql structure
 
 Do:
-4) Инит очередей
-5) Заполняем очередь пустышками
-6) Инит Postgres
-8) Заполняем очередь из БД
 9) Делаем запись в БД(Лучше всего тут так же использовать очередь)
 10) Ресерчим Dockerfile
 11) Реализация
@@ -185,7 +184,7 @@ func FromJSONToObj() {
 }
 
 func TestConnectionToDB(){
-	 connectionToDB()
+	CreateQueueFromDB()
 }
 
 func TestObjConvertion(){
@@ -210,6 +209,10 @@ func main() {
 
 	// RM_Send("hello", GenerateJSONIn(in));
 
-	TestConnectionToDB();
 
+
+	/*Создаем Send очередь из БД*/
+	CreateQueueFromDB();
+	/*Получаем очередь*/
+	GetQueue();
 }

@@ -49,7 +49,7 @@ func failOnError(err error, msg string) {
 	}
 }
 
-func RM_Receive() {
+func RM_Receive(_name string) {
 	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
 	failOnError(err, "Failed to connect to RabbitMQ")
 	defer conn.Close()
@@ -59,7 +59,7 @@ func RM_Receive() {
 	defer ch.Close()
 
 	q, err := ch.QueueDeclare(
-		"hello", // name
+		_name,   // name
 		false,   // durable
 		false,   // delete when unused
 		false,   // exclusive
