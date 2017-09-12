@@ -217,29 +217,17 @@ func FromJSONToObj() {
 	GenerateJSON(out)
 }
 
-func main() {
-
-	//{
-	//	if _, err = os.Stat("./bulletin.db"); os.IsNotExist(err) {
-	//		println("database ./bulletin.db doesn't exist")
-	//		return
-	//	}
-	//}
-
-	// stable workS
-	// {
-	// println("Run")
-	// FromJSONToObj()
-	// println("Finished")
-	// }
-
-	connectionToDB()
-	// CloseConnectionToDB();
-
-	// defer stmtCateg.Close() // Close the statement when we leave main() / the program terminates
+func TestConnectionToDB(){
+	 connectionToDB()
 }
 
-// var DB *sql.DB
-// var stmtCateg *sql.Stmt //List of categories
-// var stntAdds *sql.Stmt  // list of all adds by categoryID
-//var stntMessageBody *sql.Stmt // list of all adds by categoryID
+func TestObjConvertion(){
+	println("Run")
+	FromJSONToObj()
+	println("Finished")
+}
+
+func main() {
+	RM_Send();
+	RM_Receive();
+}
