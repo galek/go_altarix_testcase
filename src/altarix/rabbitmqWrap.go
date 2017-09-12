@@ -19,6 +19,24 @@ package main
 *Замечание, иногда требуется переменную RABBITMQ_BASE присвоить до установки RabbitMQ(по крайней мере про это написано на stackoverflow. У меня так же не взлетало)
 */
 
+
+/*
+Алгоритм, как будем работать:
+1) Raw object отправить нельзя. Нужно его сериализовать (см примечание)
+2) Формируем очередь сообщений из BD (Нужно поработать над сериализацией MessageIn) как JSON
+3) Кидаем сообщения (Raw JSON object)
+4) MessageIn ~ctor
+5) -> MessageOut
+6) WriteToBD MessageOut
+
+"Hi Aluen. RabbitMQ treats message bodies as opaque binary data. If you 
+want to send objects you'll need to serialise them - if you're only 
+using Python you could pickle the objects. Otherwise you would need to 
+write out JSON or XML or similar."
+
+
+*/
+
 import (
 	"log"
 
