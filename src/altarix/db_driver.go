@@ -2,7 +2,6 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
 	"log"
 
 	_ "github.com/lib/pq"
@@ -54,7 +53,7 @@ func connectionToDB() {
 	OpenConnectionToDB()
 	// init_database(&db)
 	GetUIDFromAccessTokensByToken("38b2cfb8-eb40-fc3d-9a81-49304b21cdb6", &DB)
-	GetTokenFromAccessTokensByUID(1, &DB)
+	// GetTokenFromAccessTokensByUID(1, &DB)
 
 	GetObjectFromResultTable(&DB)
 
@@ -179,7 +178,10 @@ func GetObjectFromResultTable(pdb **sql.DB) {
 	var rows *sql.Rows
 	rows, err = stntMessageBody.Query()
 
-	bks := make([]*MessageIn, 0)
+	// Allocate size on 0 elements
+	// bks := make([]*MessageIn, 0)
+	// Not allocate
+	var bks []MessageIn // == nil
 
 	var AT_UID int = INVALID_VALUE
 	var EC_UID int = INVALID_VALUE
@@ -187,13 +189,33 @@ func GetObjectFromResultTable(pdb **sql.DB) {
 	var PN_UID int = INVALID_VALUE
 	var PNE_UID int = INVALID_VALUE
 	var PN_PHONE_UID int = INVALID_VALUE
+	var ROW_IT int = 1
 
 	for rows.Next() {
-		bk := new(MessageIn)
-		err := rows.Scan(&AT_UID, &EC_UID, &ST_UID, &PN_UID, &PNE_UID, &PN_PHONE_UID, &bk.Data.Date)
-		if err != nil {
-			log.Fatal(err)
+		/*
+		 */
+		if ISDebug {
+			log.Println("ROW_IT ", ROW_IT)
 		}
+
+		// for Allocate solution
+		// bk := new(MessageIn)
+		bk := MessageIn{}
+
+		err = rows.Scan(&AT_UID, &EC_UID, &ST_UID, &PN_UID, &PNE_UID, &PN_PHONE_UID, &bk.Data.Date)
+
+		if ISDebug {
+			log.Println("[DEBUG ONLY] ",
+				AT_UID,
+				EC_UID,
+				ST_UID,
+				PN_UID,
+				PNE_UID,
+				PN_PHONE_UID,
+				bk.Data.Date)
+		}
+
+		printError(file_line())
 
 		// Вот тут на самом деле можно все упростить и поместить в 1 табличку. Но я хотел достичь нормализации, поэтому все так усложнено.
 		/*Добавим еще одну таблицу в последствии*/
@@ -206,14 +228,28 @@ func GetObjectFromResultTable(pdb **sql.DB) {
 		bk.Data.Person_email = GetTokenFromPersonEmailByUID(PN_UID, pdb)
 		bk.Data.PersonSMS = GetTokenFromPersonSMSByUID(PN_PHONE_UID, pdb)
 
+		if ISDebug {
+			log.Printf("[DEBUG ONLY] %s, %s, %s, %s, %s, %s, %s \n", bk.Access_token, bk.Event_code, bk.Stream_type, bk.Data.Person_Name, bk.Data.Person_email, bk.Data.PersonSMS, bk.Data.Date)
+		}
+
 		bks = append(bks, bk)
+
+		if ISDebug {
+			ROW_IT++
+		}
 	}
 	if err = rows.Err(); err != nil {
 		log.Fatal(err)
 	}
 
 	for _, bk := range bks {
-		fmt.Printf("%s, %s, %s, %s, %s, %s, %s \n", bk.Access_token, bk.Event_code, bk.Stream_type, bk.Data.Person_Name, bk.Data.Person_email, bk.Data.PersonSMS, bk.Data.Date)
+
+		/*Send to queue*/
+		RM_Send("obj", GenerateJSONIn(bk))
+
+		if ISDebug {
+			log.Printf("[DEBUG ONLY] %s, %s, %s, %s, %s, %s, %s \n", bk.Access_token, bk.Event_code, bk.Stream_type, bk.Data.Person_Name, bk.Data.Person_email, bk.Data.PersonSMS, bk.Data.Date)
+		}
 	}
 
 }

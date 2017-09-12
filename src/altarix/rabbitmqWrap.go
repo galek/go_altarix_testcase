@@ -91,7 +91,7 @@ func RM_Receive() {
 	<-forever
 }
 
-func RM_Send() {
+func RM_Send(_name string, _body string) {
 	/*Тут иногда надо обращаться по адресу 0.0.0.0:5672/*/
 	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
 	failOnError(err, "Failed to connect to RabbitMQ")
@@ -102,7 +102,7 @@ func RM_Send() {
 	defer ch.Close()
 
 	q, err := ch.QueueDeclare(
-		"hello", // name
+		_name,   // name
 		false,   // durable
 		false,   // delete when unused
 		false,   // exclusive
@@ -111,7 +111,6 @@ func RM_Send() {
 	)
 	failOnError(err, "Failed to declare a queue")
 
-	body := "hello"
 	err = ch.Publish(
 		"",     // exchange
 		q.Name, // routing key
@@ -119,8 +118,8 @@ func RM_Send() {
 		false,  // immediate
 		amqp.Publishing{
 			ContentType: "text/plain",
-			Body:        []byte(body),
+			Body:        []byte(_body),
 		})
-	log.Printf(" [x] Sent %s", body)
+	log.Printf(" [x] Sent %s", _body)
 	failOnError(err, "Failed to publish a message")
 }
