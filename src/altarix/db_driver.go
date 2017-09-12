@@ -139,16 +139,21 @@ func GetTokenFromStreamTypesByUID(uid int, pdb **sql.DB) string {
 	return UTIL_GetStringByUID("descr", "uid", 1, "stream_types", pdb)
 }
 
+/*Функция получает Имя по UID*/
 func GetTokenFromPersonNameByUID(uid int, pdb **sql.DB) string {
 	return UTIL_GetStringByUID("name", "uid", 1, "id_names", pdb)
 }
+/*Функция получает email по UID*/
 func GetTokenFromPersonEmailByUID(uid int, pdb **sql.DB) string {
 	return UTIL_GetStringByUID("email", "uid", 1, "uuid_email", pdb)
 }
+
+/*Функция получает Номер телефона по UID*/
 func GetTokenFromPersonSMSByUID(uid int, pdb **sql.DB) string {
 	return UTIL_GetStringByUID("tel_number", "uid", 1, "uuid_sms", pdb)
 }
 
+/*Получаем готовый к употреблению объект из ResultTable*/
 func GetObjectFromResultTable(pdb **sql.DB) {
 	db := *pdb
 	var req string = "SELECT " + "*" + " FROM " + " resulttable"
