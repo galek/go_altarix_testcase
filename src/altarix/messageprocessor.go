@@ -17,11 +17,11 @@ import (
 	 */
 	"github.com/pquerna/ffjson/ffjson"
 
-	"fmt"
+	// "fmt"
 	//"io"
 	"log"
 	// "strings"
-	"unicode/utf8"
+	// "unicode/utf8"
 )
 
 // План
@@ -99,39 +99,6 @@ type MessageOut struct {
 	Stream_type  string `json:"stream_type"`
 	To           string `json:"to"`
 	Data         MessageDataOut
-}
-
-func ValidateJSONMessage(in *MessageIn) bool {
-	log.Println("[Debug] ValidateJSON")
-
-	var EC_lenght int = utf8.RuneCountInString(in.Event_code)
-
-	if EC_lenght == 0 || EC_lenght > 255 {
-		log.Fatalln("Invalid JSON SIZE for event_code")
-		return false
-	}
-
-	if in.Stream_type != "email" && in.Stream_type != "sms" && in.Stream_type != "push" {
-		log.Fatalln("Invalid JSON type for Stream_type")
-		return false
-	}
-
-	// validate on nill. but must be nill, because not pointer
-	if (MessageDataIn{}) == in.Data {
-		log.Fatalln("Invalid JSON object for Data")
-		return false
-	}
-	return true
-}
-
-// Generate JSON func from MessageOut, used for debug
-// see https://ashirobokov.wordpress.com/2016/09/22/json-golang-cheat-sheet/
-func GenerateJSON(in MessageOut) {
-	// Write the buffer
-	boolVar, _ := ffjson.Marshal(&in)
-	fmt.Println(string(boolVar))
-
-	// TODO: Add write to bd
 }
 
 func MessageInToMessageToConverter(in *MessageIn, to *MessageOut, jsonStream string) {
@@ -214,7 +181,7 @@ func FromJSONToObj() {
 
 	MessageInToMessageToConverter(&in, &out, jsonStream)
 
-	GenerateJSON(out)
+	GenerateJSONOut(out)
 }
 
 func TestConnectionToDB(){
@@ -228,6 +195,21 @@ func TestObjConvertion(){
 }
 
 func main() {
-	RM_Send();
-	RM_Receive();
+	// RM_Send();
+	// RM_Receive();
+
+
+
+	// in := MessageIn{}
+	// in.Access_token="0d10566b-7e7f-4c17-b2ea-f0e42a4df3c0";
+	// in.Event_code="ispp";
+	// in.Stream_type="email";
+	// in.Data.Date="2016-03-03";
+	// in.Data.Person_Name="Иван";
+	// in.Data.Person_email="ivanivanov@gmail.com";
+
+	// RM_Send("hello", GenerateJSONIn(in));
+
+	TestConnectionToDB();
+
 }
