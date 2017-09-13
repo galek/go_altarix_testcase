@@ -9,7 +9,9 @@ import (
 )
 
 func ValidateJSONMessage(in *MessageIn) bool {
-	log.Println("[Debug] ValidateJSON")
+	if ISDebug {
+		log.Println("[Debug] ValidateJSON")
+	}
 
 	var EC_lenght int = utf8.RuneCountInString(in.Event_code)
 
@@ -18,7 +20,7 @@ func ValidateJSONMessage(in *MessageIn) bool {
 		return false
 	}
 
-	if in.Stream_type != "email" && in.Stream_type != "sms" && in.Stream_type != "push" {
+	if in.Stream_type != "email" && in.Stream_type != "EMAIL" && in.Stream_type != "sms" && in.Stream_type != "SMS" && in.Stream_type != "push" && in.Stream_type != "PUSH" {
 		log.Fatalln("Invalid JSON type for Stream_type")
 		return false
 	}
@@ -38,7 +40,10 @@ func GenerateJSONOut(in MessageOut) string {
 	boolVar, _ := ffjson.Marshal(&in)
 
 	res := string(boolVar)
-	fmt.Println(res)
+
+	if ISDebug {
+		fmt.Println(res)
+	}
 
 	return res
 	// TODO: Add write to bd
@@ -48,7 +53,10 @@ func GenerateJSONIn(in MessageIn) string {
 	// Write the buffer
 	boolVar, _ := ffjson.Marshal(&in)
 	res := string(boolVar)
-	fmt.Println(res)
+
+	if ISDebug {
+		fmt.Println(res)
+	}
 
 	return res
 }

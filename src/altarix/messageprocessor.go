@@ -63,10 +63,13 @@ Message<DataOut> out;
 // TODO On today:
 
 Do:
-9) Делаем запись в БД(Лучше всего тут так же использовать очередь)
+9) Делаем запись в БД(Лучше всего тут так же использовать очередь) - Очередь отменяется, т.к тут пайалайн работы такой не прокатит. 
+9.5) Переписываем как демона.append
+
+
 10) Ресерчим Dockerfile
-11) Реализация
-11) Юнит-тесты
+11) Реализация Dockerfile
+11) Юнит-тесты 
 11) Сдача
 */
 
@@ -101,10 +104,12 @@ type MessageOut struct {
 }
 
 func MessageInToMessageToConverter(in *MessageIn, to *MessageOut, jsonStream string) {
+	log.Printf("JSON %s", jsonStream)
+
 	ffjson.Unmarshal([]byte(jsonStream), &in)
 
 	// debug
-	// {
+	//if ISDebug {
 	// 	fmt.Println(in)
 	// 	fmt.Println(in.Data.Person_Name)
 	// }
@@ -114,32 +119,42 @@ func MessageInToMessageToConverter(in *MessageIn, to *MessageOut, jsonStream str
 		return
 	}
 
-	if in.Stream_type == "email" {
-		log.Println("[Debug] stream_type is email")
-		// fmt.Println(in.Data.Person_email)
-	} else if in.Stream_type == "sms" {
-		log.Println("[Debug] stream_type is sms")
-		// fmt.Println(in.Data.PersonSMS)
-	} else if in.Stream_type == "push" {
-		log.Println("[Debug] stream_type is push")
-		// fmt.Println(in.Data.PersonPush)
+	if in.Stream_type == "email" || in.Stream_type == "EMAIL" {
+		if ISDebug {
+			log.Println("[Debug] stream_type is email")
+			// fmt.Println(in.Data.Person_email)
+		}
+		to.To = in.Data.Person_email
+	} else if in.Stream_type == "sms" || in.Stream_type == "SMS" {
+		if ISDebug {
+			log.Println("[Debug] stream_type is sms")
+			// fmt.Println(in.Data.PersonSMS)
+		}
+		to.To = in.Data.PersonSMS
+	} else if in.Stream_type == "push" || in.Stream_type == "PUSH" {
+		if ISDebug {
+			log.Println("[Debug] stream_type is push")
+			// fmt.Println(in.Data.PersonPush)
+		}
+		to.To = in.Data.PersonPush
 	}
 
 	to.Access_token = in.Access_token
 	to.Event_code = in.Event_code
 	to.Stream_type = in.Stream_type
 
+	// TODO: Clean me, deprecated
 	// TO Value
-	if to.Stream_type == "email" {
-		log.Println("[Debug] MessageOut stream_type is email")
-		to.To = in.Data.Person_email
-	} else if to.Stream_type == "sms" {
-		log.Println("[Debug] MessageOut stream_type is sms")
-		to.To = in.Data.PersonSMS
-	} else if to.Stream_type == "push" {
-		log.Println("[Debug] MessageOut stream_type is push")
-		to.To = in.Data.PersonPush
-	}
+	// if to.Stream_type == "email" {
+	// 	log.Println("[Debug] MessageOut stream_type is email")
+	// 	to.To = in.Data.Person_email
+	// } else if to.Stream_type == "sms" {
+	// 	log.Println("[Debug] MessageOut stream_type is sms")
+	// 	to.To = in.Data.PersonSMS
+	// } else if to.Stream_type == "push" {
+	// 	log.Println("[Debug] MessageOut stream_type is push")
+	// 	to.To = in.Data.PersonPush
+	// }
 
 	// Data
 	to.Data.Person_Name = in.Data.Person_Name
@@ -158,7 +173,7 @@ func MessageInToMessageToConverter(in *MessageIn, to *MessageOut, jsonStream str
 	// }
 }
 
-func FromJSONToObj() {
+func FromJSONToObjTest() {
 
 	// TODO: Добавить контролирование входных данных(смотри ТЗ)
 	const jsonStream = `
@@ -183,21 +198,19 @@ func FromJSONToObj() {
 	GenerateJSONOut(out)
 }
 
-func TestConnectionToDB(){
+func TestConnectionToDB() {
 	CreateQueueFromDB()
 }
 
-func TestObjConvertion(){
+func TestObjConvertion() {
 	println("Run")
-	FromJSONToObj()
+	FromJSONToObjTest()
 	println("Finished")
 }
 
 func main() {
 	// RM_Send();
 	// RM_Receive();
-
-
 
 	// in := MessageIn{}
 	// in.Access_token="0d10566b-7e7f-4c17-b2ea-f0e42a4df3c0";
@@ -209,10 +222,8 @@ func main() {
 
 	// RM_Send("hello", GenerateJSONIn(in));
 
-
-
 	/*Создаем Send очередь из БД*/
-	CreateQueueFromDB();
+	CreateQueueFromDB()
 	/*Получаем очередь*/
-	GetQueue();
+	GetQueue()
 }

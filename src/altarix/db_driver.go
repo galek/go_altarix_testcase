@@ -53,7 +53,7 @@ func CloseConnectionToDB() {
 Создаем очередь из БД
 */
 func CreateQueueFromDB() {
-	OpenConnectionToDB()	
+	OpenConnectionToDB()
 	GetObjectFromResultTable(&DB)
 	CloseConnectionToDB()
 }
@@ -61,8 +61,17 @@ func CreateQueueFromDB() {
 /*
 Получаем очередь и разбираем ее
 */
-func GetQueue(){
+func GetQueue() {
+	// res := make([]string, 0)
+
 	RM_Receive("obj")
+
+	// for _, v := range res {
+
+	// 	//  if ISDebug {
+	// 	log.Println("[DEBUG ONLY] Requsted with token: ", v)
+	// 	//  }
+	// }
 }
 
 /**/
@@ -261,29 +270,6 @@ func GetObjectFromResultTable(pdb **sql.DB) {
 }
 
 /*-----------------------------------------------------------------------------*/
-func init_database(pdb **sql.DB) {
+func WriteMessageToBD(_mess *MessageOut) {
 
-	// db := *pdb
-
-	// init_db_strings := []string{
-	// 	"DROP SCHEMA IF EXISTS sb CASCADE;",
-	// 	"CREATE SCHEMA sb;",
-	// 	//be careful - next multiline string is quoted by backquote symbol
-	// 	`CREATE TABLE sb.test_data(
-	// 		 id serial,
-	// 		 device_id integer not null,
-	// 		 parameter_id integer not null,
-	// 		 value varchar(100),
-	// 		 event_ctime timestamp default current_timestamp,
-	// 		 constraint id_pk primary key (id));`}
-
-	// for _, qstr := range init_db_strings {
-	// 	_, err := db.Exec(qstr)
-
-	// 	if err != nil {
-	// 		fmt.Printf("Database init error -->%v\n", err)
-	// 		panic("Query error")
-	// 	}
-	// }
-	// fmt.Println("Database rebuilded successfully")
 }

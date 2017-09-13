@@ -13,12 +13,11 @@ package main
 7) Копируем содержимое C:\Rabbit\rabbitmq_server-3.6.11 в C:\Rabbit
 8) А вот теперь запустится
 9) По умолчанию, висим на локалхосте. Но иногда сервер почему-то был недоступен. Достучаться к нему можно через 0.0.0.0:5762/ . Такая мурда, т.к конфиг по умолчанию пустой
-инфа получена через исследование примерного конфига. 
+инфа получена через исследование примерного конфига.
 10) Отправка и получение теперь работает.
 
 *Замечание, иногда требуется переменную RABBITMQ_BASE присвоить до установки RabbitMQ(по крайней мере про это написано на stackoverflow. У меня так же не взлетало)
 */
-
 
 /*
 Алгоритм, как будем работать:
@@ -29,9 +28,9 @@ package main
 5) -> MessageOut
 6) WriteToBD MessageOut
 
-"Hi Aluen. RabbitMQ treats message bodies as opaque binary data. If you 
-want to send objects you'll need to serialise them - if you're only 
-using Python you could pickle the objects. Otherwise you would need to 
+"Hi Aluen. RabbitMQ treats message bodies as opaque binary data. If you
+want to send objects you'll need to serialise them - if you're only
+using Python you could pickle the objects. Otherwise you would need to
 write out JSON or XML or similar."
 
 
@@ -40,6 +39,7 @@ write out JSON or XML or similar."
 import (
 	"log"
 
+	"github.com/pquerna/ffjson/ffjson"
 	"github.com/streadway/amqp"
 )
 
@@ -49,7 +49,7 @@ func failOnError(err error, msg string) {
 	}
 }
 
-func RM_Receive(_name string) {
+func RM_Receive(_name string /*, ref []string*/) {
 	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
 	failOnError(err, "Failed to connect to RabbitMQ")
 	defer conn.Close()
@@ -59,12 +59,12 @@ func RM_Receive(_name string) {
 	defer ch.Close()
 
 	q, err := ch.QueueDeclare(
-		_name,   // name
-		false,   // durable
-		false,   // delete when unused
-		false,   // exclusive
-		false,   // no-wait
-		nil,     // arguments
+		_name, // name
+		false, // durable
+		false, // delete when unused
+		false, // exclusive
+		false, // no-wait
+		nil,   // arguments
 	)
 	failOnError(err, "Failed to declare a queue")
 
@@ -79,16 +79,38 @@ func RM_Receive(_name string) {
 	)
 	failOnError(err, "Failed to register a consumer")
 
-	forever := make(chan bool)
+	// вот тут получается что-то типа бесконечного цикла, там нихрена не выходит из него :(
+	// Пытался передавать и по ссылке, и сделать return v; - нихера. если сделать это до range-based цикла, то все работает
 
 	go func() {
 		for d := range msgs {
-			log.Printf("Received a message: %s", d.Body)
-		}
-	}()
 
-	log.Printf(" [*] Waiting for messages. To exit press CTRL+C")
-	<-forever
+			// log.Printf("Received a message: %s", d.Body)
+			// ref = append(ref, string(d.Body[:]))
+
+			// log.Printf("Вывели")
+			inM := MessageIn{}
+			ffjson.Unmarshal(d.Body, &inM)
+
+			outM := MessageOut{}
+			MessageInToMessageToConverter(&inM, &outM, string(d.Body[:]))
+			// // log.Printf("Вывели1")
+			// ffjson.Unmarshal(d.Body, &outM)
+			// // log.Printf("Вывели2")
+
+			// log.Printf(GenerateJSONIn(inM))
+
+			// if ISDebug {
+				log.Printf(GenerateJSONOut(outM))
+			// }
+
+			WriteMessageToBD(&outM)
+
+			// log.Printf("Вывели3")
+
+		}
+
+	}()
 }
 
 func RM_Send(_name string, _body string) {
@@ -102,12 +124,12 @@ func RM_Send(_name string, _body string) {
 	defer ch.Close()
 
 	q, err := ch.QueueDeclare(
-		_name,   // name
-		false,   // durable
-		false,   // delete when unused
-		false,   // exclusive
-		false,   // no-wait
-		nil,     // arguments
+		_name, // name
+		false, // durable
+		false, // delete when unused
+		false, // exclusive
+		false, // no-wait
+		nil,   // arguments
 	)
 	failOnError(err, "Failed to declare a queue")
 
