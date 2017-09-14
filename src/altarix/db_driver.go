@@ -2,6 +2,7 @@ package main
 
 import (
 	"database/sql"
+	"fmt"
 	"log"
 
 	_ "github.com/lib/pq"
@@ -46,7 +47,7 @@ func OpenConnectionToDB() {
 }
 
 func CloseConnectionToDB() {
-	defer DB.Close()
+	// defer DB.Close()
 }
 
 /*
@@ -144,6 +145,17 @@ func UTIL_GetStringByUID(_tokenName string, UID_NAME string, UID_VALUE int, _dbN
 /*Функция получает уникальный номер из access_tokens по токену*/
 func GetUIDFromAccessTokensByToken(_token string, pdb **sql.DB) int {
 	return UTIL_GetUIDByString("token", "uid", _token, "access_tokens", pdb)
+}
+
+/*Функция получает уникальный номер из access_tokens по токену*/
+func GetUIDFromEventCodesByUID(_token string, pdb **sql.DB) int {
+	return UTIL_GetUIDByString("descr", "uid", _token, "Event_codes", pdb)
+}
+func GetUIDFromStreamTypesByUID(_token string, pdb **sql.DB) int {
+	return UTIL_GetUIDByString("descr", "uid", _token, "stream_types", pdb)
+}
+func GetUIDFromNamesByUID(_token string, pdb **sql.DB) int {
+	return UTIL_GetUIDByString("name", "uid", _token, "id_names", pdb)
 }
 
 /*Функция получает access_tokens по номеру*/
@@ -270,6 +282,74 @@ func GetObjectFromResultTable(pdb **sql.DB) {
 }
 
 /*-----------------------------------------------------------------------------*/
-func WriteMessageToBD(_mess *MessageOut) {
+/*
+https://www.compose.com/articles/going-from-postgresql-rows-to-rabbitmq-messages/
+*/
+func WriteMessageToBD(_mess *MessageOut, pdb **sql.DB) {
+	DB, err = sql.Open("postgres", DB_CONNECT_STRING)
+	if err != nil {
+		log.Println("Database opening error -->%v\n", err)
+		panic("Database error")
+	}
 
+	printError(file_line())
+
+	log.Println("OpenConnection to DB")
+
+	//  OpenConnectionToDB();
+	log.Println("OpenConnection to DB -opened")
+
+	db := *pdb
+	var req string = "INSERT INTO public.totable (access_token, event_token, stream_type, person_name, person_to, person_date) VALUES($1, $2, $3, $4, $5, $6)"
+
+	//if ISDebug {
+	log.Println("req: ", req)
+	//}
+
+	var stmt *sql.Stmt
+	stmt, err = db.Prepare(req)
+
+	log.Println("OpenConnection to DB -PRepare")
+
+	printError(file_line())
+
+	// //Читаем все значения
+	// var rows *sql.Rows
+	// rows, err = stmt.Query()
+
+	// printError(file_line())
+	// defer rows.Close()
+	// defer stmt.Close()
+
+	// // CloseConnectionToDB();
+
+	res, err := stmt.Query(
+		GetUIDFromAccessTokensByToken(_mess.Access_token, pdb),
+		GetUIDFromEventCodesByUID(_mess.Event_code, pdb),
+		GetUIDFromStreamTypesByUID(_mess.Stream_type, pdb),
+		GetUIDFromNamesByUID(_mess.Data.Person_Name, pdb),
+		_mess.To,
+		_mess.Data.Date)
+	log.Println("OpenConnection to DB -Query")
+
+	// res, err := db.Exec(req, GetUIDFromAccessTokensByToken(_mess.Access_token, pdb),
+	// 	GetUIDFromEventCodesByUID(_mess.Event_code, pdb),
+	// 	GetUIDFromStreamTypesByUID(_mess.Stream_type, pdb),
+	// 	_mess.To,
+	// 	GetUIDFromNamesByUID(_mess.Data.Person_Name, pdb),
+	// 	_mess.Data.Date)
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	stmt.Close()
+	// db.Close()
+
+	fmt.Printf("Res", res)
+	// defer db.Close()
+	// err = db.Close()
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 }

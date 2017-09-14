@@ -63,13 +63,13 @@ Message<DataOut> out;
 // TODO On today:
 
 Do:
-9) Делаем запись в БД(Лучше всего тут так же использовать очередь) - Очередь отменяется, т.к тут пайалайн работы такой не прокатит. 
+9) Делаем запись в БД(Лучше всего тут так же использовать очередь) - Очередь отменяется, т.к тут пайалайн работы такой не прокатит.
 9.5) Переписываем как демона.append
 
 
 10) Ресерчим Dockerfile
 11) Реализация Dockerfile
-11) Юнит-тесты 
+11) Юнит-тесты
 11) Сдача
 */
 
@@ -104,7 +104,9 @@ type MessageOut struct {
 }
 
 func MessageInToMessageToConverter(in *MessageIn, to *MessageOut, jsonStream string) {
-	log.Printf("JSON %s", jsonStream)
+	if ISDebug {
+		log.Printf("JSON %s", jsonStream)
+	}
 
 	ffjson.Unmarshal([]byte(jsonStream), &in)
 
@@ -223,7 +225,7 @@ func main() {
 	// RM_Send("hello", GenerateJSONIn(in));
 
 	/*Создаем Send очередь из БД*/
-	CreateQueueFromDB()
+	 CreateQueueFromDB()
 	/*Получаем очередь*/
 	GetQueue()
 }

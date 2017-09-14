@@ -37,7 +37,13 @@ write out JSON or XML or similar."
 */
 
 import (
+	"database/sql"
+
+	"github.com/lib/pq"
+
 	"log"
+
+	"time"
 
 	"github.com/pquerna/ffjson/ffjson"
 	"github.com/streadway/amqp"
@@ -46,6 +52,12 @@ import (
 func failOnError(err error, msg string) {
 	if err != nil {
 		log.Fatalf("%s: %s", msg, err)
+	}
+}
+
+func errorReporter(ev pq.ListenerEventType, err error) {
+	if err != nil {
+		log.Print(err)
 	}
 }
 
@@ -71,46 +83,99 @@ func RM_Receive(_name string /*, ref []string*/) {
 	msgs, err := ch.Consume(
 		q.Name, // queue
 		"",     // consumer
-		true,   // auto-ack
+		false,  // auto-ack
 		false,  // exclusive
 		false,  // no-local
 		false,  // no-wait
 		nil,    // args
 	)
+	// msgs, err := ch.Get(q.Name, true)
 	failOnError(err, "Failed to register a consumer")
 
 	// вот тут получается что-то типа бесконечного цикла, там нихрена не выходит из него :(
 	// Пытался передавать и по ссылке, и сделать return v; - нихера. если сделать это до range-based цикла, то все работает
 
-	go func() {
-		for d := range msgs {
+	// OpenConnectionToDB();
 
-			// log.Printf("Received a message: %s", d.Body)
-			// ref = append(ref, string(d.Body[:]))
+	listener := pq.NewListener(DB_CONNECT_STRING, 10*time.Second, time.Minute, errorReporter)
+	err = listener.Listen("urlwork")
+	if err != nil {
+		log.Fatal(err)
+	}
 
-			// log.Printf("Вывели")
-			inM := MessageIn{}
-			ffjson.Unmarshal(d.Body, &inM)
+	res := make([]string, 0)
 
-			outM := MessageOut{}
-			MessageInToMessageToConverter(&inM, &outM, string(d.Body[:]))
-			// // log.Printf("Вывели1")
-			// ffjson.Unmarshal(d.Body, &outM)
-			// // log.Printf("Вывели2")
+	for d := range msgs {
+		go processMessage(d, DB)
+	}
 
-			// log.Printf(GenerateJSONIn(inM))
+	// go-routine
+	// go func(_DB *sql.DB, res []string) {
+	// 	for d := range msgs {
 
-			// if ISDebug {
-				log.Printf(GenerateJSONOut(outM))
-			// }
+	// 		// Тут можно прервать проверкой, Но не понятно по какому критерию прерывать, через break
 
-			WriteMessageToBD(&outM)
+	// 		log.Printf("Received a message: %s", d.Body)
+	// 		// ref = append(ref, string(d.Body[:]))
 
-			// log.Printf("Вывели3")
+	// 		err = listener.Ping()
+	// 		if err != nil {
+	// 			log.Fatal(err)
+	// 		}
 
-		}
+	// 		// log.Printf("Вывели")
+	// 		inM := MessageIn{}
+	// 		ffjson.Unmarshal(d.Body, &inM)
 
-	}()
+	// 		outM := MessageOut{}
+	// 		MessageInToMessageToConverter(&inM, &outM, string(d.Body[:]))
+	// 		// // log.Printf("Вывели1")
+	// 		// ffjson.Unmarshal(d.Body, &outM)
+	// 		// // log.Printf("Вывели2")
+
+	// 		// log.Printf(GenerateJSONIn(inM))
+
+	// 		// if ISDebug {
+	// 		// log.Printf(GenerateJSONOut(outM))
+	// 		// }
+
+	// 		// WriteMessageToBD(&outM, &_DB)
+
+	// 		res = append(res, string(d.Body[:]))
+
+	// 		// log.Printf("Вывели3")
+
+	// 		// d.Ack(false)
+	// 	}
+
+	// }(DB, res)
+
+	for _, v := range res {
+		log.Printf("Вывели3", v)
+	}
+}
+
+func processMessage(d amqp.Delivery, _DB *sql.DB) {
+	log.Printf("[%v] %q", d.DeliveryTag, d.Body)
+
+	inM := MessageIn{}
+	ffjson.Unmarshal(d.Body, &inM)
+
+	outM := MessageOut{}
+	MessageInToMessageToConverter(&inM, &outM, string(d.Body[:]))
+	// // log.Printf("Вывели1")
+	// ffjson.Unmarshal(d.Body, &outM)
+	// 		// // log.Printf("Вывели2")
+
+	// 		// log.Printf(GenerateJSONIn(inM))
+
+	// 		// if ISDebug {
+	// 		// log.Printf(GenerateJSONOut(outM))
+	// 		// }
+
+	WriteMessageToBD(&outM, &_DB)
+
+	d.Ack(false)
 }
 
 func RM_Send(_name string, _body string) {
