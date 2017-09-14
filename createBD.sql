@@ -158,7 +158,7 @@ event_token int NOT NULL,
 stream_type int NOT NULL,
 /*Data block*/
 person_name int NOT NULL,
-person_to TEXT,
+person_to TEXT NOT NULL,
 FOREIGN KEY (access_token) REFERENCES public.ACCESS_TOKENS(uid),
 FOREIGN KEY (event_token) REFERENCES public.EVENT_CODES(uid),
 FOREIGN KEY (stream_type) REFERENCES public.STREAM_TYPES(uid),
