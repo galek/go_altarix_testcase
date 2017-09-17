@@ -9,27 +9,12 @@ import (
 )
 
 /*
-https://github.com/go-pg/pg
-https://github.com/lib/pq
-https://github.com/lib/pq/blob/master/listen_example/doc.go
-*/
-
-/*
 See:http://go-database-sql.org/prepared.html
 MySQL               PostgreSQL            Oracle
 =====               ==========            ======
 WHERE col = ?       WHERE col = $1        WHERE col = :col
 VALUES(?, ?, ?)     VALUES($1, $2, $3)    VALUES(:val1, :val2, :val3)
 */
-
-// TODO:
-/*
-Добавить поле push в result table и так же заполнять его.
-Заполняем очередь.
-Раскидать более удобно код.
-Подчистить, добавить валидации
-*/
-
 const INVALID_VALUE int = -1
 const INVALID_VALUE_STRING string = ""
 const DB_CONNECT_STRING = "host=localhost port=5432 user=postgres password=postgres dbname=altarix sslmode=disable"
@@ -304,7 +289,7 @@ func GetObjectFromResultTable(pdb **sql.DB) {
 https://www.compose.com/articles/going-from-postgresql-rows-to-rabbitmq-messages/
 */
 func WriteMessageToBD(_mess *MessageOut, pdb **sql.DB) {
-	
+
 	/*Validation layer*/
 	if IsInValidConnectionDB(pdb) != nil {
 		log.Printf("InValid connection.")

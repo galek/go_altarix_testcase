@@ -8,6 +8,7 @@ import (
 )
 
 var err error
+
 /**/
 var ISDebug bool = false
 

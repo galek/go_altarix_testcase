@@ -95,6 +95,7 @@ func RM_Receive(_name string /*, ref []string*/) {
 	// вот тут получается что-то типа бесконечного цикла, там нихрена не выходит из него :(
 	// Пытался передавать и по ссылке, и сделать return v; - нихера. если сделать это до range-based цикла, то все работает
 
+	// TODO: ЗАЧЕМ?! не помню.
 	listener := pq.NewListener(DB_CONNECT_STRING, 10*time.Second, time.Minute, errorReporter)
 	err = listener.Listen("urlwork")
 	if err != nil {

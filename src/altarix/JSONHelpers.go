@@ -46,7 +46,6 @@ func GenerateJSONOut(in MessageOut) string {
 	}
 
 	return res
-	// TODO: Add write to bd
 }
 
 func GenerateJSONIn(in MessageIn) string {

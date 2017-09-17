@@ -1,77 +1,10 @@
 package main
 
 import (
-	// "database/sql"
-	// "fmt"
-	// "net/http"
-	// "strconv"
-
-	//_ "github.com/mattn/go-sqlite3"
-
-	// _ "github.com/go-sql-driver/mysql"
-
-	// JSON, for object parsing
-	//"encoding/json"
-	// see
-	/*https://github.com/pquerna/ffjson  - it faster
-	 */
-	"github.com/pquerna/ffjson/ffjson"
-
-	// "fmt"
-	//"io"
 	"log"
-	// "strings"
-	// "unicode/utf8"
+
+	"github.com/pquerna/ffjson/ffjson"
 )
-
-// План
-/*
-Finished:
-1) Разбор сообщения (тут лучше всего сделать через template) __DONE__
-
-template <class DataT>
-struct Message
-{
-	String access_token, event_code, stream_type
-	DataT data;
-}
-
-struct DataIn
-{
-	...
-}
-
-struct DataOut
-{
-	...
-}
-
-Use:
-Message<DataIn> in;
-Message<DataOut> out;
-
-1) Research on message broker and implement support of postgres+research sql structure __DONE__
-2) Сделать функцию которая будет составлять новое сообщение  __DONE__
-3) Добавляем контролирование входных данных __DONE__
-4) Генерация JSON'a - debug only __DONE__
-5) Пишем структуру БД __DONE__
-6) Инит очередей __DONE__
-7) Заполняем очередь пустышками __DONE__
-8) Инит Postgres __DONE__
-9) Заполняем очередь из БД __DONE__
-
-// TODO On today:
-
-Do:
-9) Делаем запись в БД(Лучше всего тут так же использовать очередь) - Очередь отменяется, т.к тут пайалайн работы такой не прокатит.
-9.5) Переписываем как демона.append
-
-
-10) Ресерчим Dockerfile
-11) Реализация Dockerfile
-11) Юнит-тесты
-11) Сдача
-*/
 
 // JSON
 // https://golang.org/pkg/encoding/json/#pkg-examples
@@ -123,20 +56,17 @@ func MessageInToMessageToConverter(in *MessageIn, to *MessageOut, jsonStream str
 
 	if in.Stream_type == "email" || in.Stream_type == "EMAIL" {
 		if ISDebug {
-			log.Println("[Debug] stream_type is email")
-			// fmt.Println(in.Data.Person_email)
+			log.Println("[Debug] stream_type is email. ", in.Data.Person_email)
 		}
 		to.To = in.Data.Person_email
 	} else if in.Stream_type == "sms" || in.Stream_type == "SMS" {
 		if ISDebug {
-			log.Println("[Debug] stream_type is sms")
-			// fmt.Println(in.Data.PersonSMS)
+			log.Println("[Debug] stream_type is sms. ", in.Data.PersonSMS)
 		}
 		to.To = in.Data.PersonSMS
 	} else if in.Stream_type == "push" || in.Stream_type == "PUSH" {
 		if ISDebug {
-			log.Println("[Debug] stream_type is push")
-			// fmt.Println(in.Data.PersonPush)
+			log.Println("[Debug] stream_type is push. ", in.Data.PersonPush)
 		}
 		to.To = in.Data.PersonPush
 	}
@@ -211,21 +141,8 @@ func TestObjConvertion() {
 }
 
 func main() {
-	// RM_Send();
-	// RM_Receive();
-
-	// in := MessageIn{}
-	// in.Access_token="0d10566b-7e7f-4c17-b2ea-f0e42a4df3c0";
-	// in.Event_code="ispp";
-	// in.Stream_type="email";
-	// in.Data.Date="2016-03-03";
-	// in.Data.Person_Name="Иван";
-	// in.Data.Person_email="ivanivanov@gmail.com";
-
-	// RM_Send("hello", GenerateJSONIn(in));
-
 	/*Создаем Send очередь из БД*/
-	 CreateQueueFromDB()
+	CreateQueueFromDB()
 	/*Получаем очередь*/
 	GetQueue()
 }
