@@ -2,7 +2,7 @@ package main
 
 import (
 	"database/sql"
-	"fmt"
+	"errors"
 	"log"
 
 	_ "github.com/lib/pq"
@@ -36,43 +36,53 @@ const DB_CONNECT_STRING = "host=localhost port=5432 user=postgres password=postg
 
 var DB *sql.DB
 
-func OpenConnectionToDB() {
+func OpenConnectionToDB(pdb **sql.DB) {
 	DB, err = sql.Open("postgres", DB_CONNECT_STRING)
 	if err != nil {
 		log.Println("Database opening error -->%v\n", err)
 		panic("Database error")
 	}
+	// закрытие сделаем в CloseConnectionToDB
+	// defer DB.Close()
 
 	printError(file_line())
 }
 
-func CloseConnectionToDB() {
-	// defer DB.Close()
+func CloseConnectionToDB(pdb **sql.DB) {
+	db := *pdb
+	err = db.Close()
+	printError(file_line())
+}
+
+func IsInValidConnectionDB(pdb **sql.DB) error {
+	db := *pdb
+	if pdb == nil {
+		return errors.New("Pointer to connection is dead")
+	}
+	errL := db.Ping()
+	if errL != nil {
+		return errors.New("Connection is lost")
+	}
+
+	return errL
 }
 
 /*
 Создаем очередь из БД
 */
 func CreateQueueFromDB() {
-	OpenConnectionToDB()
+	OpenConnectionToDB(&DB)
 	GetObjectFromResultTable(&DB)
-	CloseConnectionToDB()
+	CloseConnectionToDB(&DB)
 }
 
 /*
 Получаем очередь и разбираем ее
 */
 func GetQueue() {
-	// res := make([]string, 0)
-
+	OpenConnectionToDB(&DB)
 	RM_Receive("obj")
-
-	// for _, v := range res {
-
-	// 	//  if ISDebug {
-	// 	log.Println("[DEBUG ONLY] Requsted with token: ", v)
-	// 	//  }
-	// }
+	CloseConnectionToDB(&DB)
 }
 
 /**/
@@ -190,10 +200,18 @@ func GetTokenFromPersonSMSByUID(uid int, pdb **sql.DB) string {
 
 /*Получаем готовый к употреблению объект из ResultTable*/
 func GetObjectFromResultTable(pdb **sql.DB) {
+	printError(file_line())
+
 	db := *pdb
 	var req string = "SELECT " + "*" + " FROM " + " resulttable"
 	if ISDebug {
 		log.Println("req: ", req)
+	}
+
+	/*Validation layer*/
+	if IsInValidConnectionDB(pdb) != nil {
+		log.Printf("InValid connection.")
+		OpenConnectionToDB(pdb)
 	}
 
 	var stntMessageBody *sql.Stmt
@@ -286,70 +304,40 @@ func GetObjectFromResultTable(pdb **sql.DB) {
 https://www.compose.com/articles/going-from-postgresql-rows-to-rabbitmq-messages/
 */
 func WriteMessageToBD(_mess *MessageOut, pdb **sql.DB) {
-	DB, err = sql.Open("postgres", DB_CONNECT_STRING)
-	if err != nil {
-		log.Println("Database opening error -->%v\n", err)
-		panic("Database error")
+	
+	/*Validation layer*/
+	if IsInValidConnectionDB(pdb) != nil {
+		log.Printf("InValid connection.")
+		OpenConnectionToDB(pdb)
 	}
 
 	printError(file_line())
 
-	log.Println("OpenConnection to DB")
-
-	//  OpenConnectionToDB();
-	log.Println("OpenConnection to DB -opened")
-
 	db := *pdb
 	var req string = "INSERT INTO public.totable (access_token, event_token, stream_type, person_name, person_to, person_date) VALUES($1, $2, $3, $4, $5, $6)"
 
-	//if ISDebug {
-	log.Println("req: ", req)
-	//}
+	if ISDebug {
+		log.Println("req: ", req)
+	}
 
 	var stmt *sql.Stmt
 	stmt, err = db.Prepare(req)
 
-	log.Println("OpenConnection to DB -PRepare")
+	if ISDebug {
+		log.Println("OpenConnection to DB -PRepare")
+	}
 
 	printError(file_line())
 
-	// //Читаем все значения
-	// var rows *sql.Rows
-	// rows, err = stmt.Query()
-
-	// printError(file_line())
-	// defer rows.Close()
-	// defer stmt.Close()
-
-	// // CloseConnectionToDB();
-
-	res, err := stmt.Query(
+	stmt.Query(
 		GetUIDFromAccessTokensByToken(_mess.Access_token, pdb),
 		GetUIDFromEventCodesByUID(_mess.Event_code, pdb),
 		GetUIDFromStreamTypesByUID(_mess.Stream_type, pdb),
 		GetUIDFromNamesByUID(_mess.Data.Person_Name, pdb),
 		_mess.To,
 		_mess.Data.Date)
-	log.Println("OpenConnection to DB -Query")
 
-	// res, err := db.Exec(req, GetUIDFromAccessTokensByToken(_mess.Access_token, pdb),
-	// 	GetUIDFromEventCodesByUID(_mess.Event_code, pdb),
-	// 	GetUIDFromStreamTypesByUID(_mess.Stream_type, pdb),
-	// 	_mess.To,
-	// 	GetUIDFromNamesByUID(_mess.Data.Person_Name, pdb),
-	// 	_mess.Data.Date)
-
-	if err != nil {
-		log.Fatal(err)
-	}
+	printError(file_line())
 
 	stmt.Close()
-	// db.Close()
-
-	fmt.Printf("Res", res)
-	// defer db.Close()
-	// err = db.Close()
-	// if err != nil {
-	// 	log.Fatal(err)
-	// }
 }

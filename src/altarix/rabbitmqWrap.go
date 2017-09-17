@@ -95,63 +95,15 @@ func RM_Receive(_name string /*, ref []string*/) {
 	// вот тут получается что-то типа бесконечного цикла, там нихрена не выходит из него :(
 	// Пытался передавать и по ссылке, и сделать return v; - нихера. если сделать это до range-based цикла, то все работает
 
-	// OpenConnectionToDB();
-
 	listener := pq.NewListener(DB_CONNECT_STRING, 10*time.Second, time.Minute, errorReporter)
 	err = listener.Listen("urlwork")
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	res := make([]string, 0)
-
+	// go-routine
 	for d := range msgs {
 		go processMessage(d, DB)
-	}
-
-	// go-routine
-	// go func(_DB *sql.DB, res []string) {
-	// 	for d := range msgs {
-
-	// 		// Тут можно прервать проверкой, Но не понятно по какому критерию прерывать, через break
-
-	// 		log.Printf("Received a message: %s", d.Body)
-	// 		// ref = append(ref, string(d.Body[:]))
-
-	// 		err = listener.Ping()
-	// 		if err != nil {
-	// 			log.Fatal(err)
-	// 		}
-
-	// 		// log.Printf("Вывели")
-	// 		inM := MessageIn{}
-	// 		ffjson.Unmarshal(d.Body, &inM)
-
-	// 		outM := MessageOut{}
-	// 		MessageInToMessageToConverter(&inM, &outM, string(d.Body[:]))
-	// 		// // log.Printf("Вывели1")
-	// 		// ffjson.Unmarshal(d.Body, &outM)
-	// 		// // log.Printf("Вывели2")
-
-	// 		// log.Printf(GenerateJSONIn(inM))
-
-	// 		// if ISDebug {
-	// 		// log.Printf(GenerateJSONOut(outM))
-	// 		// }
-
-	// 		// WriteMessageToBD(&outM, &_DB)
-
-	// 		res = append(res, string(d.Body[:]))
-
-	// 		// log.Printf("Вывели3")
-
-	// 		// d.Ack(false)
-	// 	}
-
-	// }(DB, res)
-
-	for _, v := range res {
-		log.Printf("Вывели3", v)
 	}
 }
 
@@ -163,15 +115,14 @@ func processMessage(d amqp.Delivery, _DB *sql.DB) {
 
 	outM := MessageOut{}
 	MessageInToMessageToConverter(&inM, &outM, string(d.Body[:]))
-	// // log.Printf("Вывели1")
-	// ffjson.Unmarshal(d.Body, &outM)
-	// 		// // log.Printf("Вывели2")
 
-	// 		// log.Printf(GenerateJSONIn(inM))
+	if ISDebug {
+		log.Printf("[DEBUG ONLY] processMessage. IN OBJECT, JSON: %s", GenerateJSONIn(inM))
+	}
 
-	// 		// if ISDebug {
-	// 		// log.Printf(GenerateJSONOut(outM))
-	// 		// }
+	if ISDebug {
+		log.Printf("[DEBUG ONLY] processMessage. OUT OBJECT, JSON: %s", GenerateJSONOut(outM))
+	}
 
 	WriteMessageToBD(&outM, &_DB)
 
