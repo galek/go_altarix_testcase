@@ -72,6 +72,14 @@ func GetQueue() {
 
 /**/
 func UTIL_GetUIDByString(_tokenName string, UID_NAME string, _tokenValue string, _dbName string, pdb **sql.DB) int {
+	printError(file_line())
+	/*Validation layer*/
+	if IsInValidConnectionDB(pdb) != nil {
+		log.Printf("InValid connection.")
+		OpenConnectionToDB(pdb)
+	}
+	printError(file_line())
+	
 	db := *pdb
 	var req string = "SELECT " + UID_NAME + " FROM " + _dbName + " WHERE " + _tokenName + " = $1"
 	if ISDebug {
@@ -105,6 +113,14 @@ func UTIL_GetUIDByString(_tokenName string, UID_NAME string, _tokenValue string,
 }
 
 func UTIL_GetStringByUID(_tokenName string, UID_NAME string, UID_VALUE int, _dbName string, pdb **sql.DB) string {
+	printError(file_line())
+	/*Validation layer*/
+	if IsInValidConnectionDB(pdb) != nil {
+		log.Printf("InValid connection.")
+		OpenConnectionToDB(pdb)
+	}
+	printError(file_line())
+
 	db := *pdb
 	var req string = "SELECT " + _tokenName + " FROM " + _dbName + " WHERE " + UID_NAME + " = $1"
 	if ISDebug {
@@ -186,17 +202,17 @@ func GetTokenFromPersonSMSByUID(uid int, pdb **sql.DB) string {
 /*Получаем готовый к употреблению объект из ResultTable*/
 func GetObjectFromResultTable(pdb **sql.DB) {
 	printError(file_line())
+	/*Validation layer*/
+	if IsInValidConnectionDB(pdb) != nil {
+		log.Printf("InValid connection.")
+		OpenConnectionToDB(pdb)
+	}
+	printError(file_line())
 
 	db := *pdb
 	var req string = "SELECT " + "*" + " FROM " + " resulttable"
 	if ISDebug {
 		log.Println("req: ", req)
-	}
-
-	/*Validation layer*/
-	if IsInValidConnectionDB(pdb) != nil {
-		log.Printf("InValid connection.")
-		OpenConnectionToDB(pdb)
 	}
 
 	var stntMessageBody *sql.Stmt
@@ -289,13 +305,12 @@ func GetObjectFromResultTable(pdb **sql.DB) {
 https://www.compose.com/articles/going-from-postgresql-rows-to-rabbitmq-messages/
 */
 func WriteMessageToBD(_mess *MessageOut, pdb **sql.DB) {
-
+	printError(file_line())
 	/*Validation layer*/
 	if IsInValidConnectionDB(pdb) != nil {
 		log.Printf("InValid connection.")
 		OpenConnectionToDB(pdb)
 	}
-
 	printError(file_line())
 
 	db := *pdb
