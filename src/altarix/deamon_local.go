@@ -12,8 +12,8 @@ import (
 const (
 
 	// name of the service
-	name        = "myservice"
-	description = "My Echo Service"
+	name        = "AltarixDemo"
+	description = "Altarix demo the work of daemon"
 
 	// port which daemon should be listen
 	port = ":9977"
