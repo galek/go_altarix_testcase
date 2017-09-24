@@ -153,6 +153,8 @@ func LogicImpl() {
 }
 
 func Shutdown() (string, error) {
+	log.Printf("Daemon was got command on shutdown")
+
 	os.Exit(1)
 	return "Shutdown command", nil
 }
