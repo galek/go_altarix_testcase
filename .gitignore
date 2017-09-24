@@ -1,3 +1,4 @@
 src/tools/liteide/
 *.exe
 src/altarix/debug
+pkg/
