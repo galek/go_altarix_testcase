@@ -79,7 +79,7 @@ func UTIL_GetUIDByString(_tokenName string, UID_NAME string, _tokenValue string,
 		OpenConnectionToDB(pdb)
 	}
 	printError(file_line())
-	
+
 	db := *pdb
 	var req string = "SELECT " + UID_NAME + " FROM " + _dbName + " WHERE " + _tokenName + " = $1"
 	if ISDebug {

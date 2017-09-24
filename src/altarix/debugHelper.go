@@ -26,6 +26,14 @@ func file_line() string {
 
 func printError(_fileName string) {
 	if err != nil {
-		log.Fatalln("Fatal error. File: ", _fileName, " Desc: ", err.Error())
+		if ISDebug {
+			log.Fatalln("Fatal error. File: ", _fileName, " Desc: ", err.Error())
+		} else {
+			if errlog != nil {
+				errlog.Fatalln("Fatal error. File: ", _fileName, " Desc: ", err.Error())
+			} else {
+				log.Fatalln("Fatal error. File: ", _fileName, " Desc: ", err.Error())
+			}
+		}
 	}
 }

@@ -43,21 +43,21 @@ import (
 
 	"log"
 
-	"time"
-
 	"github.com/pquerna/ffjson/ffjson"
 	"github.com/streadway/amqp"
 )
 
 func failOnError(err error, msg string) {
 	if err != nil {
-		log.Fatalf("%s: %s", msg, err)
-	}
-}
-
-func errorReporter(ev pq.ListenerEventType, err error) {
-	if err != nil {
-		log.Print(err)
+		if ISDebug {
+			log.Fatalf("%s: %s", msg, err)
+		} else {
+			if errlog != nil {
+				errlog.Fatalf("%s: %s", msg, err)
+			} else {
+				log.Fatalf("%s: %s", msg, err)
+			}
+		}
 	}
 }
 
@@ -91,13 +91,6 @@ func RM_Receive(_name string /*, ref []string*/) {
 	)
 	// msgs, err := ch.Get(q.Name, true)
 	failOnError(err, "Failed to register a consumer")
-
-	// TODO: ЗАЧЕМ?! не помню.
-	listener := pq.NewListener(DB_CONNECT_STRING, 10*time.Second, time.Minute, errorReporter)
-	err = listener.Listen("urlwork")
-	if err != nil {
-		log.Fatal(err)
-	}
 
 	// go-routine
 	for d := range msgs {

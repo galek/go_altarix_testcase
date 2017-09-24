@@ -128,21 +128,16 @@ func DeamonMain() {
 		log.Println("[DeamonMain] Started")
 	}
 
-	srv, err := daemon.New(name, description /*, dependencies...*/)
-	if err != nil {
-		log.Fatal("Error: ", err)
-		os.Exit(1)
-	}
+	var srv daemon.Daemon
+	srv, err = daemon.New(name, description /*, dependencies...*/)
+	printError(file_line())
 
 	service := &Service{srv}
 
-	status, err := service.Manage()
-	log.Println(status)
+	var status string = ""
+	status, err = service.Manage()
 
-	if err != nil {
-		log.Fatal(status, "\nError: ", err)
-		os.Exit(1)
-	}
+	printError(file_line())
 
 	log.Println(status)
 
@@ -150,5 +145,5 @@ func DeamonMain() {
 		log.Println("[DeamonMain] Finished")
 	}
 
-	CloseLoggingFiles();
+	CloseLoggingFiles()
 }
