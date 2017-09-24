@@ -218,6 +218,9 @@ END;
 ' LANGUAGE  'plpgsql';
 
 CREATE TRIGGER TRG_totable
-   AFTER INSERT OR UPDATE OR DELETE ON totable
+   AFTER
+INSERT OR
+UPDATE OR DELETE ON totable
    FOR EACH ROW
-EXECUTE PROCEDURE trigger_s_before_del();
+EXECUTE PROCEDURE trigger_s_before_del
+();
