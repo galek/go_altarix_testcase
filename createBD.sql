@@ -7,18 +7,21 @@
 */
 
 
-CREATE TABLE public.ID_NAMES(  
-   uid serial NOT NULL PRIMARY KEY,
-   name TEXT
+CREATE TABLE public.ID_NAMES
+(
+    uid serial NOT NULL PRIMARY KEY,
+    name TEXT
 );
 
-INSERT INTO public.ID_NAMES (name) VALUES  
-('Иван'),
-('Николай'),
-('Андрей'),
-('Алексей'),
-('Саша'),
-('Даша')
+INSERT INTO public.ID_NAMES
+    (name)
+VALUES
+    ('Иван'),
+    ('Николай'),
+    ('Андрей'),
+    ('Алексей'),
+    ('Саша'),
+    ('Даша')
 ;
 
 /*
@@ -26,18 +29,21 @@ INSERT INTO public.ID_NAMES (name) VALUES
 Формат: 
 Код-Описание
 */
-CREATE TABLE public.EVENT_CODES(  
-   uid serial NOT NULL PRIMARY KEY,
-   descr TEXT
+CREATE TABLE public.EVENT_CODES
+(
+    uid serial NOT NULL PRIMARY KEY,
+    descr TEXT
 );
 
-INSERT INTO public.EVENT_CODES (descr) VALUES  
-('Загрузка'),
-('Вышло новое обновление'),
-('Ваша очередь'),
-('Клиническая смерть сервера'),
-('Клиническая смерть клиента'),
-('Слушает музыку')
+INSERT INTO public.EVENT_CODES
+    (descr)
+VALUES
+    ('Загрузка'),
+    ('Вышло новое обновление'),
+    ('Ваша очередь'),
+    ('Клиническая смерть сервера'),
+    ('Клиническая смерть клиента'),
+    ('Слушает музыку')
 ;
 
 /*
@@ -45,15 +51,18 @@ INSERT INTO public.EVENT_CODES (descr) VALUES
 Формат: 
 Код-Описание
 */
-CREATE TABLE public.STREAM_TYPES(  
-   uid serial NOT NULL PRIMARY KEY,
-   descr TEXT
+CREATE TABLE public.STREAM_TYPES
+(
+    uid serial NOT NULL PRIMARY KEY,
+    descr TEXT
 );
 
-INSERT INTO public.STREAM_TYPES (descr) VALUES  
-('SMS'),
-('EMAIL'),
-('PUSH')
+INSERT INTO public.STREAM_TYPES
+    (descr)
+VALUES
+    ('SMS'),
+    ('EMAIL'),
+    ('PUSH')
 ;
 
 /*
@@ -61,17 +70,20 @@ INSERT INTO public.STREAM_TYPES (descr) VALUES
 Формат: 
 Код-почта
 */
-CREATE TABLE public.UUID_EMAIL(  
-   uid serial NOT NULL PRIMARY KEY,
-   email TEXT
+CREATE TABLE public.UUID_EMAIL
+(
+    uid serial NOT NULL PRIMARY KEY,
+    email TEXT
 );
 
-INSERT INTO public.UUID_EMAIL (email) VALUES  
-('test@test.ru'),
-('test@test2.ru'),
-('test@test3.ru'),
-('test@test4.ru'),
-('test@test5.ru')
+INSERT INTO public.UUID_EMAIL
+    (email)
+VALUES
+    ('test@test.ru'),
+    ('test@test2.ru'),
+    ('test@test3.ru'),
+    ('test@test4.ru'),
+    ('test@test5.ru')
 ;
 
 /*
@@ -79,17 +91,20 @@ INSERT INTO public.UUID_EMAIL (email) VALUES
 Формат: 
 Код-номер телефона
 */
-CREATE TABLE public.UUID_SMS(  
-   uid serial NOT NULL PRIMARY KEY,
-   tel_number TEXT
+CREATE TABLE public.UUID_SMS
+(
+    uid serial NOT NULL PRIMARY KEY,
+    tel_number TEXT
 );
 
-INSERT INTO public.UUID_SMS (tel_number) VALUES  
-('000000001'),
-('000000002'),
-('000000003'),
-('000000004'),
-('000000005')
+INSERT INTO public.UUID_SMS
+    (tel_number)
+VALUES
+    ('000000001'),
+    ('000000002'),
+    ('000000003'),
+    ('000000004'),
+    ('000000005')
 ;
 
 /*
@@ -97,18 +112,21 @@ INSERT INTO public.UUID_SMS (tel_number) VALUES
 Формат: 
 Код-заголовок уведомления, подробный текст, иконка
 */
-CREATE TABLE public.UUID_PUSH(  
-   uid serial NOT NULL PRIMARY KEY,
-   caption TEXT,
-   body TEXT,
-   icon int
+CREATE TABLE public.UUID_PUSH
+(
+    uid serial NOT NULL PRIMARY KEY,
+    caption TEXT,
+    body TEXT,
+    icon int
 );
 
-INSERT INTO public.UUID_PUSH (caption, body, icon) VALUES  
-('cap1','body1', 0),
-('cap2','body2', 0),
-('cap3','body3', 0),
-('cap4','body4', 0)
+INSERT INTO public.UUID_PUSH
+    (caption, body, icon)
+VALUES
+    ('cap1', 'body1', 0),
+    ('cap2', 'body2', 0),
+    ('cap3', 'body3', 0),
+    ('cap4', 'body4', 0)
 ;
 
 
@@ -120,49 +138,86 @@ SELECT md5(random()::text || clock_timestamp()::text)::uuid
 
 на моей psql уже готовые функции типа uuid_generate_v4, не работают :(
 */
-CREATE TABLE public.ACCESS_TOKENS(  
-   uid serial NOT NULL PRIMARY KEY,
-   TOKEN TEXT
+CREATE TABLE public.ACCESS_TOKENS
+(
+    uid serial NOT NULL PRIMARY KEY,
+    TOKEN TEXT
 );
 
-INSERT INTO public.ACCESS_TOKENS (TOKEN) VALUES  
-('38b2cfb8-eb40-fc3d-9a81-49304b21cdb6')
+INSERT INTO public.ACCESS_TOKENS
+    (TOKEN)
+VALUES
+    ('38b2cfb8-eb40-fc3d-9a81-49304b21cdb6')
 ;
 
 /*
 Результирующая таблица
 */
-CREATE TABLE public.ResultTable(  
-access_token int NOT NULL,
-event_token int NOT NULL, 
-stream_type int NOT NULL,
-/*Data block*/
-person_name int NOT NULL,
-person_email int,
-person_phone int,
-FOREIGN KEY (access_token) REFERENCES public.ACCESS_TOKENS(uid),
-FOREIGN KEY (event_token) REFERENCES public.EVENT_CODES(uid),
-FOREIGN KEY (stream_type) REFERENCES public.STREAM_TYPES(uid),
-FOREIGN KEY (person_email) REFERENCES public.UUID_EMAIL(uid),
-FOREIGN KEY (person_phone) REFERENCES public.UUID_SMS(uid),
-FOREIGN KEY (person_name) REFERENCES public.ID_NAMES(uid),
-/*обычная дата DATE*/
-person_date date
+CREATE TABLE public.ResultTable
+(
+    access_token int NOT NULL,
+    event_token int NOT NULL,
+    stream_type int NOT NULL,
+    /*Data block*/
+    person_name int NOT NULL,
+    /*Имя не может быть нулевым*/
+    person_email int,
+    /*а вот почта может быть не указана*/
+    person_phone int,
+    /*а вот телефон может быть не указан*/
+    FOREIGN KEY (access_token) REFERENCES public.ACCESS_TOKENS(uid),
+    FOREIGN KEY (event_token) REFERENCES public.EVENT_CODES(uid),
+    FOREIGN KEY (stream_type) REFERENCES public.STREAM_TYPES(uid),
+    FOREIGN KEY (person_email) REFERENCES public.UUID_EMAIL(uid),
+    FOREIGN KEY (person_phone) REFERENCES public.UUID_SMS(uid),
+    FOREIGN KEY (person_name) REFERENCES public.ID_NAMES(uid),
+    /*обычная дата DATE*/
+    person_date date
 );
 /*
 Результирующая таблица
 */
-CREATE TABLE public.ToTable(  
-access_token int NOT NULL,
-event_token int NOT NULL, 
-stream_type int NOT NULL,
-/*Data block*/
-person_name int NOT NULL,
-person_to TEXT NOT NULL,
-FOREIGN KEY (access_token) REFERENCES public.ACCESS_TOKENS(uid),
-FOREIGN KEY (event_token) REFERENCES public.EVENT_CODES(uid),
-FOREIGN KEY (stream_type) REFERENCES public.STREAM_TYPES(uid),
-FOREIGN KEY (person_name) REFERENCES public.ID_NAMES(uid),
-/*обычная дата DATE*/
-person_date date
+CREATE TABLE public.ToTable
+(
+    uid serial NOT NULL PRIMARY KEY,/*вот здесь находим уникальных по токену*/
+    access_token int NOT NULL,
+    event_token int NOT NULL,
+    stream_type int NOT NULL,
+    /*Data block*/
+    person_name int NOT NULL,
+    person_to TEXT NOT NULL,
+    FOREIGN KEY (access_token) REFERENCES public.ACCESS_TOKENS(uid),
+    FOREIGN KEY (event_token) REFERENCES public.EVENT_CODES(uid),
+    FOREIGN KEY (stream_type) REFERENCES public.STREAM_TYPES(uid),
+    FOREIGN KEY (person_name) REFERENCES public.ID_NAMES(uid),
+    /*обычная дата DATE*/
+    person_date date
 );
+
+/*Удаляем дубликаты - запрос*/
+/*
+DELETE FROM totable
+WHERE uid IN (SELECT uid
+FROM (SELECT uid,
+        ROW_NUMBER() OVER (partition BY access_token, event_token, stream_type, person_name, person_to, person_date ORDER BY uid) AS rnum
+    FROM totable) t
+WHERE t.rnum > 1);*/
+
+/*Удаляем дубликаты по триггеру*/
+CREATE LANGUAGE plpgsql;
+
+CREATE FUNCTION trigger_s_before_del () RETURNS trigger  AS '
+BEGIN 
+DELETE FROM totable
+WHERE uid IN (SELECT uid
+FROM (SELECT uid,
+        ROW_NUMBER() OVER (partition BY access_token, event_token, stream_type, person_name, person_to, person_date ORDER BY uid) AS rnum
+    FROM totable) t
+WHERE t.rnum > 1);
+END; 
+' LANGUAGE  'plpgsql';
+
+CREATE TRIGGER TRG_totable
+   AFTER INSERT OR UPDATE OR DELETE ON totable
+   FOR EACH ROW
+EXECUTE PROCEDURE trigger_s_before_del();
