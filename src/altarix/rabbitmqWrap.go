@@ -39,8 +39,6 @@ write out JSON or XML or similar."
 import (
 	"database/sql"
 
-	"github.com/lib/pq"
-
 	"log"
 
 	"github.com/pquerna/ffjson/ffjson"
