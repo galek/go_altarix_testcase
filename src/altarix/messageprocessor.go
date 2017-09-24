@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"os"
 
 	"github.com/pquerna/ffjson/ffjson"
 )
@@ -140,9 +141,22 @@ func TestObjConvertion() {
 	println("Finished")
 }
 
-func main() {
+func TestLogic() {
+	LogicImpl()
+}
+
+func LogicImpl() {
 	/*Создаем Send очередь из БД*/
 	CreateQueueFromDB()
 	/*Получаем очередь*/
 	GetQueue()
+}
+
+func Shutdown() (string, error) {
+	os.Exit(1)
+	return "Shutdown command", nil
+}
+
+func main() {
+	DeamonMain()
 }
