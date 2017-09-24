@@ -92,9 +92,6 @@ func RM_Receive(_name string /*, ref []string*/) {
 	// msgs, err := ch.Get(q.Name, true)
 	failOnError(err, "Failed to register a consumer")
 
-	// вот тут получается что-то типа бесконечного цикла, там нихрена не выходит из него :(
-	// Пытался передавать и по ссылке, и сделать return v; - нихера. если сделать это до range-based цикла, то все работает
-
 	// TODO: ЗАЧЕМ?! не помню.
 	listener := pq.NewListener(DB_CONNECT_STRING, 10*time.Second, time.Minute, errorReporter)
 	err = listener.Listen("urlwork")
@@ -109,7 +106,10 @@ func RM_Receive(_name string /*, ref []string*/) {
 }
 
 func processMessage(d amqp.Delivery, _DB *sql.DB) {
-	log.Printf("[%v] %q", d.DeliveryTag, d.Body)
+
+	if ISDebug || ISShowSendGetReq {
+		log.Printf("[%v] Receive %q", d.DeliveryTag, d.Body)
+	}
 
 	inM := MessageIn{}
 	ffjson.Unmarshal(d.Body, &inM)
@@ -117,11 +117,11 @@ func processMessage(d amqp.Delivery, _DB *sql.DB) {
 	outM := MessageOut{}
 	MessageInToMessageToConverter(&inM, &outM, string(d.Body[:]))
 
-	if ISDebug {
+	if ISDebug || ISShowSendGetReq {
 		log.Printf("[DEBUG ONLY] processMessage. IN OBJECT, JSON: %s", GenerateJSONIn(inM))
 	}
 
-	if ISDebug {
+	if ISDebug || ISShowSendGetReq {
 		log.Printf("[DEBUG ONLY] processMessage. OUT OBJECT, JSON: %s", GenerateJSONOut(outM))
 	}
 
@@ -159,6 +159,10 @@ func RM_Send(_name string, _body string) {
 			ContentType: "text/plain",
 			Body:        []byte(_body),
 		})
-	log.Printf(" [x] Sent %s", _body)
+
+	if ISDebug || ISShowSendGetReq {
+		log.Printf(" [x] Sent %s", _body)
+	}
+
 	failOnError(err, "Failed to publish a message")
 }

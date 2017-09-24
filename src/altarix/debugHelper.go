@@ -11,6 +11,7 @@ var err error
 
 /**/
 var ISDebug bool = false
+var ISShowSendGetReq bool = true
 
 func file_line() string {
 	_, fileName, fileLine, ok := runtime.Caller(1)
