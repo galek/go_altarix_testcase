@@ -25,3 +25,12 @@ under linux
 2) run RabbitMQ and postgres
 2) run sudo altarix install
 3) run sudo altarix start
+
+
+
+=================
+Debug/Release build
+=================
+see debughelper.go 13 and 14 lines:
+ISDebug - set to true for heavy debug. All errors will written to console, else to error.log and info.log 
+ISShowSendGetReq - only rabbitmq requested will writted to error.log and info.log
