@@ -14,7 +14,7 @@ Unmantained, is need check and refactor if needed.
 ## TODO
 - DOcker
 
-##Running
+## Running
 - go to testcase\src\altarix
 ### Under Windows:
 - Run build
