@@ -12,7 +12,7 @@ License: GPL 2.0
 Unmantained, is need check and refactor if needed.
 
 ## TODO
-- DOcker
+- Docker
 
 ## Running
 - go to testcase\src\altarix
