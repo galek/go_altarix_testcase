@@ -1,5 +1,6 @@
 # Backend server(queue manager). Unmantained
-Written as test-case for Altarix in 2017
+Written as test cases for Altarix in 2017, without experience with Go and Microservices architecture.
+It Will be rewritten for demonstration my level at 2021
 
 ## Features
 * RabbitMQ.
