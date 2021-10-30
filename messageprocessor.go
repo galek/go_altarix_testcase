@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
+	"github.com/takama/daemon"
 	"log"
 )
 
+/*
 type MessageData struct {
 	PersonName  string `json:"person_Name" validate:"required"`
 	Date        string `json:"date" validate:"required"`
@@ -20,19 +22,18 @@ type MessageIn struct {
 	StreamType  string `json:"stream_type" validate:"required"`
 	Data        MessageData
 }
-
 type MessageOut struct {
 	AccessToken string `json:"access_token"`
 	EventCode   string `json:"event_code"`
 	StreamType  string `json:"stream_type"`
 	To          string `json:"to"`
 	Data        MessageData
-}
+}*/
 
 func main() {
 	log.Println("[main] Started")
 
-	srv, err := daemon.New(name, description /*, dependencies...*/)
+	srv, err := daemon.New(name, description, daemon.GlobalAgent)
 	if err != nil {
 		// TODO: Посмотреть как в MO я делал
 		log.Fatal("Can't run demon. Started with error:", err)

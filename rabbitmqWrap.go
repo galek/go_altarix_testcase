@@ -1,13 +1,11 @@
 package main
 
 import (
-	"encoding/json"
-
 	"github.com/streadway/amqp"
 	"log"
 )
 
-func Consumer(_name string) error {
+func Consumer(Name string) error {
 	// TODO: вынести это в конфиг
 	conn, err := amqp.Dial("amqp://guest:guest@localhost:5672/")
 
@@ -26,7 +24,7 @@ func Consumer(_name string) error {
 	defer ch.Close()
 
 	q, err := ch.QueueDeclare(
-		_name, // name
+		Name, // name
 		false, // durable
 		false, // delete when unused
 		false, // exclusive
@@ -63,7 +61,7 @@ func Consumer(_name string) error {
 			// For example, show received message in a console.
 			log.Printf(" > Received message: %s\n", message.Body)
 			// TODO: replace it
-			processMessage(message, nil)
+			//processMessage(message, nil)
 		}
 	}()
 
@@ -72,6 +70,7 @@ func Consumer(_name string) error {
 	return nil
 }
 
+/*
 func processMessage(d amqp.Delivery) error {
 
 	log.Printf("[%v] Receive %q", d.DeliveryTag, d.Body)
@@ -90,3 +89,4 @@ func processMessage(d amqp.Delivery) error {
 
 	return nil
 }
+*/

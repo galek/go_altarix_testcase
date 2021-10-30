@@ -1,12 +1,10 @@
 package main
 
 import (
-	"fmt"
+	"github.com/takama/daemon"
 	"os"
 	"os/signal"
 	"syscall"
-
-	"github.com/takama/daemon"
 )
 
 const (
@@ -23,11 +21,11 @@ type Service struct {
 // Manage by daemon commands or run the daemon
 func (service *Service) Manage() (string, error) {
 
-	usage := "Usage: myservice install | remove | start | stop | status"
+	//usage := "Usage: myservice install | remove | start | stop | status"
 
 	// if received any kind of command, do it
 	if len(os.Args) > 1 {
-		command := os.Args[1]
+		/*command := os.Args[1]
 		switch command {
 		case "install":
 			return service.Install(), nil
@@ -41,7 +39,7 @@ func (service *Service) Manage() (string, error) {
 			return service.Status(), nil
 		default:
 			return usage, fmt.Errorf("invalid command")
-		}
+		}*/
 	}
 
 	// Do something, call your goroutines, etc
