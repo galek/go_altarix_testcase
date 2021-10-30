@@ -1,4 +1,5 @@
 package main
+
 /*
 
 import (
@@ -13,11 +14,11 @@ import (
 )
 
 const (
-	
+
 		// name of the service
 		name        = "myservice"
 		description = "My Echo Service"
-	
+
 		// port which daemon should be listen
 		port = ":9977"
 	)

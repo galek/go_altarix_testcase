@@ -1,1 +1,0 @@
-@altarix install

@@ -4,8 +4,6 @@ import (
 	"database/sql"
 	"errors"
 	"log"
-
-	_ "github.com/lib/pq"
 )
 
 /*
@@ -19,13 +17,10 @@ const INVALID_VALUE int = -1
 const INVALID_VALUE_STRING string = ""
 const DB_CONNECT_STRING = "host=localhost port=5432 user=postgres password=postgres dbname=altarix sslmode=disable"
 
-var DB *sql.DB
-
 func OpenConnectionToDB(pdb **sql.DB) {
-	DB, err = sql.Open("postgres", DB_CONNECT_STRING)
+	DB, err: = sql.Open("postgres", DB_CONNECT_STRING)
 	if err != nil {
-		log.Println("Database opening error -->%v\n", err)
-		panic("Database error")
+		log.Fatalf("Database opening error -->%v", err)
 	}
 	// закрытие сделаем в CloseConnectionToDB
 	// defer DB.Close()
@@ -267,15 +262,15 @@ func GetObjectFromResultTable(pdb **sql.DB) {
 		/*Добавим еще одну таблицу в последствии*/
 
 		/*Convertation part*/
-		bk.Access_token = GetTokenFromAccessTokensByUID(AT_UID, pdb)
-		bk.Event_code = GetTokenFromEventCodesByUID(EC_UID, pdb)
-		bk.Stream_type = GetTokenFromStreamTypesByUID(ST_UID, pdb)
-		bk.Data.Person_Name = GetTokenFromPersonNameByUID(PN_UID, pdb)
-		bk.Data.Person_email = GetTokenFromPersonEmailByUID(PN_UID, pdb)
+		bk.AccessToken = GetTokenFromAccessTokensByUID(AT_UID, pdb)
+		bk.EventCode = GetTokenFromEventCodesByUID(EC_UID, pdb)
+		bk.StreamType = GetTokenFromStreamTypesByUID(ST_UID, pdb)
+		bk.Data.PersonName = GetTokenFromPersonNameByUID(PN_UID, pdb)
+		bk.Data.PersonEmail = GetTokenFromPersonEmailByUID(PN_UID, pdb)
 		bk.Data.PersonSMS = GetTokenFromPersonSMSByUID(PN_PHONE_UID, pdb)
 
 		if ISDebug {
-			log.Printf("[DEBUG ONLY] %s, %s, %s, %s, %s, %s, %s \n", bk.Access_token, bk.Event_code, bk.Stream_type, bk.Data.Person_Name, bk.Data.Person_email, bk.Data.PersonSMS, bk.Data.Date)
+			log.Printf("[DEBUG ONLY] %s, %s, %s, %s, %s, %s, %s \n", bk.AccessToken, bk.EventCode, bk.StreamType, bk.Data.PersonName, bk.Data.PersonEmail, bk.Data.PersonSMS, bk.Data.Date)
 		}
 
 		bks = append(bks, bk)
@@ -294,7 +289,7 @@ func GetObjectFromResultTable(pdb **sql.DB) {
 		RM_Send("obj", GenerateJSONIn(bk))
 
 		if ISDebug {
-			log.Printf("[DEBUG ONLY] %s, %s, %s, %s, %s, %s, %s \n", bk.Access_token, bk.Event_code, bk.Stream_type, bk.Data.Person_Name, bk.Data.Person_email, bk.Data.PersonSMS, bk.Data.Date)
+			log.Printf("[DEBUG ONLY] %s, %s, %s, %s, %s, %s, %s \n", bk.AccessToken, bk.EventCode, bk.StreamType, bk.Data.PersonName, bk.Data.PersonEmail, bk.Data.PersonSMS, bk.Data.Date)
 		}
 	}
 
@@ -330,14 +325,13 @@ func WriteMessageToBD(_mess *MessageOut, pdb **sql.DB) {
 	printError(file_line())
 
 	stmt.Query(
-		GetUIDFromAccessTokensByToken(_mess.Access_token, pdb),
-		GetUIDFromEventCodesByUID(_mess.Event_code, pdb),
-		GetUIDFromStreamTypesByUID(_mess.Stream_type, pdb),
-		GetUIDFromNamesByUID(_mess.Data.Person_Name, pdb),
+		GetUIDFromAccessTokensByToken(_mess.AccessToken, pdb),
+		GetUIDFromEventCodesByUID(_mess.EventCode, pdb),
+		GetUIDFromStreamTypesByUID(_mess.StreamType, pdb),
+		GetUIDFromNamesByUID(_mess.Data.PersonName, pdb),
 		_mess.To,
 		_mess.Data.Date)
 
-	printError(file_line())
 
 	stmt.Close()
 }
